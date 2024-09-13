@@ -1,0 +1,930 @@
+SimpleXMLElement Object
+(
+    [serviceResponse] => SimpleXMLElement Object
+        (
+            [@attributes] => Array
+                (
+                    [returnCode] => OK
+                )
+
+            [cityList] => SimpleXMLElement Object
+                (
+                    [city] => Array
+                        (
+                            [0] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => ADELAIDE
+                                            [cityDescription] => ADELAIDE
+                                        )
+
+                                )
+
+                            [1] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => ALBERT PARK
+                                            [cityDescription] => ALBERT PARK
+                                        )
+
+                                )
+
+                            [2] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => ALBION
+                                            [cityDescription] => ALBION
+                                        )
+
+                                )
+
+                            [3] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => ALICE SPRINGS
+                                            [cityDescription] => ALICE SPRINGS
+                                        )
+
+                                )
+
+                            [4] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => ARCHERFIELD
+                                            [cityDescription] => ARCHERFIELD
+                                        )
+
+                                )
+
+                            [5] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => ARTARMON
+                                            [cityDescription] => ARTARMON
+                                        )
+
+                                )
+
+                            [6] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => BAIRNSDALE
+                                            [cityDescription] => BAIRNSDALE
+                                        )
+
+                                )
+
+                            [7] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => BALLARAT
+                                            [cityDescription] => BALLARAT
+                                        )
+
+                                )
+
+                            [8] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => BALLINA
+                                            [cityDescription] => BALLINA
+                                        )
+
+                                )
+
+                            [9] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => BASSENDEAN
+                                            [cityDescription] => BASSENDEAN
+                                        )
+
+                                )
+
+                            [10] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => BAYSWATER
+                                            [cityDescription] => BAYSWATER
+                                        )
+
+                                )
+
+                            [11] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => BENDIGO
+                                            [cityDescription] => BENDIGO
+                                        )
+
+                                )
+
+                            [12] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => BLACKBURN
+                                            [cityDescription] => BLACKBURN
+                                        )
+
+                                )
+
+                            [13] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => BRENDALE
+                                            [cityDescription] => BRENDALE
+                                        )
+
+                                )
+
+                            [14] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => BRISBANE
+                                            [cityDescription] => BRISBANE
+                                        )
+
+                                )
+
+                            [15] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => BROADBEACH
+                                            [cityDescription] => BROADBEACH
+                                        )
+
+                                )
+
+                            [16] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => BROOME
+                                            [cityDescription] => BROOME
+                                        )
+
+                                )
+
+                            [17] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => BUNBURY
+                                            [cityDescription] => BUNBURY
+                                        )
+
+                                )
+
+                            [18] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => BUNDABERG
+                                            [cityDescription] => BUNDABERG
+                                        )
+
+                                )
+
+                            [19] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => BURPENGARY
+                                            [cityDescription] => BURPENGARY
+                                        )
+
+                                )
+
+                            [20] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => BUSSELTON
+                                            [cityDescription] => BUSSELTON
+                                        )
+
+                                )
+
+                            [21] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => CAIRNS
+                                            [cityDescription] => CAIRNS
+                                        )
+
+                                )
+
+                            [22] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => CAMBRIDGE
+                                            [cityDescription] => CAMBRIDGE
+                                        )
+
+                                )
+
+                            [23] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => CAMPBELLFIELD
+                                            [cityDescription] => CAMPBELLFIELD
+                                        )
+
+                                )
+
+                            [24] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => CANBERRA
+                                            [cityDescription] => CANBERRA
+                                        )
+
+                                )
+
+                            [25] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => CLARENCE GARDENS
+                                            [cityDescription] => CLARENCE GARDENS
+                                        )
+
+                                )
+
+                            [26] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => CLAYTON
+                                            [cityDescription] => CLAYTON
+                                        )
+
+                                )
+
+                            [27] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => COFFS HARBOUR
+                                            [cityDescription] => COFFS HARBOUR
+                                        )
+
+                                )
+
+                            [28] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => COLLINSWOOD
+                                            [cityDescription] => COLLINSWOOD
+                                        )
+
+                                )
+
+                            [29] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => DANDENONG
+                                            [cityDescription] => DANDENONG
+                                        )
+
+                                )
+
+                            [30] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => DARWIN
+                                            [cityDescription] => DARWIN
+                                        )
+
+                                )
+
+                            [31] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => DEVONPORT
+                                            [cityDescription] => DEVONPORT
+                                        )
+
+                                )
+
+                            [32] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => EAGLE FARM
+                                            [cityDescription] => EAGLE FARM
+                                        )
+
+                                )
+
+                            [33] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => EXMOUTH
+                                            [cityDescription] => EXMOUTH
+                                        )
+
+                                )
+
+                            [34] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => FORTITUDE VALLEY
+                                            [cityDescription] => FORTITUDE VALLEY
+                                        )
+
+                                )
+
+                            [35] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => FRANKSTON
+                                            [cityDescription] => FRANKSTON
+                                        )
+
+                                )
+
+                            [36] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => FREMANTLE
+                                            [cityDescription] => FREMANTLE
+                                        )
+
+                                )
+
+                            [37] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => GEELONG
+                                            [cityDescription] => GEELONG
+                                        )
+
+                                )
+
+                            [38] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => GERALDTON
+                                            [cityDescription] => GERALDTON
+                                        )
+
+                                )
+
+                            [39] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => GOLD COAST
+                                            [cityDescription] => GOLD COAST
+                                        )
+
+                                )
+
+                            [40] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => GRANVILLE
+                                            [cityDescription] => GRANVILLE
+                                        )
+
+                                )
+
+                            [41] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => HERVEY BAY
+                                            [cityDescription] => HERVEY BAY
+                                        )
+
+                                )
+
+                            [42] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => HOBART
+                                            [cityDescription] => HOBART
+                                        )
+
+                                )
+
+                            [43] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => IPSWICH
+                                            [cityDescription] => IPSWICH
+                                        )
+
+                                )
+
+                            [44] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => KALGOORLIE
+                                            [cityDescription] => KALGOORLIE
+                                        )
+
+                                )
+
+                            [45] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => KARRATHA
+                                            [cityDescription] => KARRATHA
+                                        )
+
+                                )
+
+                            [46] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => KIPPA RING
+                                            [cityDescription] => KIPPA RING
+                                        )
+
+                                )
+
+                            [47] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => LAUNCESTON
+                                            [cityDescription] => LAUNCESTON
+                                        )
+
+                                )
+
+                            [48] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => LISAROW
+                                            [cityDescription] => LISAROW
+                                        )
+
+                                )
+
+                            [49] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => LOGANHOLME
+                                            [cityDescription] => LOGANHOLME
+                                        )
+
+                                )
+
+                            [50] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => MACKAY
+                                            [cityDescription] => MACKAY
+                                        )
+
+                                )
+
+                            [51] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => MAITLAND
+                                            [cityDescription] => MAITLAND
+                                        )
+
+                                )
+
+                            [52] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => MANSFIELD
+                                            [cityDescription] => MANSFIELD
+                                        )
+
+                                )
+
+                            [53] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => MAROOCHYDORE
+                                            [cityDescription] => MAROOCHYDORE
+                                        )
+
+                                )
+
+                            [54] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => MASCOT
+                                            [cityDescription] => MASCOT
+                                        )
+
+                                )
+
+                            [55] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => MELBOURNE
+                                            [cityDescription] => MELBOURNE
+                                        )
+
+                                )
+
+                            [56] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => MERIMBULA
+                                            [cityDescription] => MERIMBULA
+                                        )
+
+                                )
+
+                            [57] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => MILPERRA
+                                            [cityDescription] => MILPERRA
+                                        )
+
+                                )
+
+                            [58] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => MOORABBIN
+                                            [cityDescription] => MOORABBIN
+                                        )
+
+                                )
+
+                            [59] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => MUSWELLBROOK
+                                            [cityDescription] => MUSWELLBROOK
+                                        )
+
+                                )
+
+                            [60] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => NEWCASTLE
+                                            [cityDescription] => NEWCASTLE
+                                        )
+
+                                )
+
+                            [61] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => NEWMAN
+                                            [cityDescription] => NEWMAN
+                                        )
+
+                                )
+
+                            [62] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => ONSLOW
+                                            [cityDescription] => ONSLOW
+                                        )
+
+                                )
+
+                            [63] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => OSBORNE PARK
+                                            [cityDescription] => OSBORNE PARK
+                                        )
+
+                                )
+
+                            [64] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => PAMBULA
+                                            [cityDescription] => PAMBULA
+                                        )
+
+                                )
+
+                            [65] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => PARABURDOO
+                                            [cityDescription] => PARABURDOO
+                                        )
+
+                                )
+
+                            [66] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => PENRITH
+                                            [cityDescription] => PENRITH
+                                        )
+
+                                )
+
+                            [67] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => PERTH
+                                            [cityDescription] => PERTH
+                                        )
+
+                                )
+
+                            [68] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => PORT HEDLAND
+                                            [cityDescription] => PORT HEDLAND
+                                        )
+
+                                )
+
+                            [69] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => PORT LINCOLN
+                                            [cityDescription] => PORT LINCOLN
+                                        )
+
+                                )
+
+                            [70] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => PRESTON
+                                            [cityDescription] => PRESTON
+                                        )
+
+                                )
+
+                            [71] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => PROSERPINE
+                                            [cityDescription] => PROSERPINE
+                                        )
+
+                                )
+
+                            [72] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => PYRMONT
+                                            [cityDescription] => PYRMONT
+                                        )
+
+                                )
+
+                            [73] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => ROCKHAMPTON
+                                            [cityDescription] => ROCKHAMPTON
+                                        )
+
+                                )
+
+                            [74] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => SEVEN HILLS
+                                            [cityDescription] => SEVEN HILLS
+                                        )
+
+                                )
+
+                            [75] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => SINGLETON
+                                            [cityDescription] => SINGLETON
+                                        )
+
+                                )
+
+                            [76] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => SOUTHBANK
+                                            [cityDescription] => SOUTHBANK
+                                        )
+
+                                )
+
+                            [77] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => SOUTHPORT
+                                            [cityDescription] => SOUTHPORT
+                                        )
+
+                                )
+
+                            [78] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => SYDNEY
+                                            [cityDescription] => SYDNEY
+                                        )
+
+                                )
+
+                            [79] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => TINGALPA
+                                            [cityDescription] => TINGALPA
+                                        )
+
+                                )
+
+                            [80] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => TOOWOOMBA
+                                            [cityDescription] => TOOWOOMBA
+                                        )
+
+                                )
+
+                            [81] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => TOWNSVILLE
+                                            [cityDescription] => TOWNSVILLE
+                                        )
+
+                                )
+
+                            [82] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => TULLAMARINE
+                                            [cityDescription] => TULLAMARINE
+                                        )
+
+                                )
+
+                            [83] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => URANGAN
+                                            [cityDescription] => URANGAN
+                                        )
+
+                                )
+
+                            [84] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => WARANA
+                                            [cityDescription] => WARANA
+                                        )
+
+                                )
+
+                            [85] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => WATERLOO
+                                            [cityDescription] => WATERLOO
+                                        )
+
+                                )
+
+                            [86] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => WELSHPOOL
+                                            [cityDescription] => WELSHPOOL
+                                        )
+
+                                )
+
+                            [87] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => WERRIBEE
+                                            [cityDescription] => WERRIBEE
+                                        )
+
+                                )
+
+                            [88] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => WHYALLA
+                                            [cityDescription] => WHYALLA
+                                        )
+
+                                )
+
+                            [89] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => WOLLONGONG
+                                            [cityDescription] => WOLLONGONG
+                                        )
+
+                                )
+
+                            [90] => SimpleXMLElement Object
+                                (
+                                    [@attributes] => Array
+                                        (
+                                            [cityCode] => WYNYARD
+                                            [cityDescription] => WYNYARD
+                                        )
+
+                                )
+
+                        )
+
+                )
+
+        )
+
+)

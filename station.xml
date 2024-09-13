@@ -1,0 +1,115 @@
+
+            <station prestige="N" stationCode="ADLC01" stationName="ADELAIDE CITY" truckAvailable="Y" />
+            <station prestige="N" stationCode="ADLN03" stationName="ADELAIDE COLLINSWOOD" truckAvailable="Y" />
+            <station prestige="N" stationCode="ADLS01" stationName="ADELAIDE CLARENCE GARDENS" truckAvailable="Y" />
+            <station prestige="N" stationCode="ADLT01" stationName="ADELAIDE AIRPORT" truckAvailable="Y" />
+            <station prestige="N" stationCode="ARYS03" stationName="BALLARAT" truckAvailable="Y" />
+            <station prestige="N" stationCode="ASPT01" stationName="ALICE SPRINGS AIRPORT" truckAvailable="Y" />
+            <station prestige="N" stationCode="BDBC02" stationName="BUNDABERG CITY" truckAvailable="Y" />
+            <station prestige="N" stationCode="BDBT02" stationName="BUNDABERG AIRPORT" truckAvailable="N" />
+            <station prestige="N" stationCode="BMET01" stationName="BROOME AIRPORT" truckAvailable="Y" />
+            <station prestige="N" stationCode="BNEC01" stationName="BRISBANE CITY SOFITEL" truckAvailable="N" />
+            <station prestige="Y" stationCode="BNEC02" stationName="BRISBANE CITY" truckAvailable="Y" />
+            <station prestige="N" stationCode="BNEC04" stationName="BRISBANE CITY COMMERCIALS" truckAvailable="Y" />
+            <station prestige="N" stationCode="BNEE02" stationName="BRISBANE TINGALPA" truckAvailable="Y" />
+            <station prestige="N" stationCode="BNEN03" stationName="BRISBANE BRENDALE" truckAvailable="Y" />
+            <station prestige="N" stationCode="BNEN07" stationName="BRISBANE KIPPA RING" truckAvailable="Y" />
+            <station prestige="N" stationCode="BNEN08" stationName="BRISBANE BURPENGARY" truckAvailable="Y" />
+            <station prestige="N" stationCode="BNES02" stationName="BRISBANE ARCHERFIELD" truckAvailable="Y" />
+            <station prestige="N" stationCode="BNES04" stationName="BRISBANE LOGANHOLME" truckAvailable="Y" />
+            <station prestige="N" stationCode="BNES05" stationName="BRISBANE MANSFIELD" truckAvailable="Y" />
+            <station prestige="Y" stationCode="BNET01" stationName="BRISBANE AIRPORT" truckAvailable="Y" />
+            <station prestige="N" stationCode="BNEW03" stationName="BRISBANE IPSWICH" truckAvailable="Y" />
+            <station prestige="N" stationCode="BNKC01" stationName="BALLINA CITY" truckAvailable="Y" />
+            <station prestige="N" stationCode="BNKT01" stationName="BALLINA BYRON GATEWAY AIRPORT" truckAvailable="Y" />
+            <station prestige="N" stationCode="BQBC02" stationName="BUSSELTON CITY" truckAvailable="Y" />
+            <station prestige="N" stationCode="BQBT01" stationName="BUSSELTON AIRPORT" truckAvailable="Y" />
+            <station prestige="N" stationCode="BSJC01" stationName="BAIRNSDALE" truckAvailable="Y" />
+            <station prestige="N" stationCode="BUYC02" stationName="BUNBURY" truckAvailable="Y" />
+            <station prestige="N" stationCode="BWTT02" stationName="BURNIE WYNYARD AIRPORT" truckAvailable="Y" />
+            <station prestige="N" stationCode="BXGC03" stationName="BENDIGO" truckAvailable="Y" />
+            <station prestige="N" stationCode="CBRC01" stationName="CANBERRA CITY" truckAvailable="Y" />
+            <station prestige="N" stationCode="CBRT01" stationName="CANBERRA AIRPORT" truckAvailable="Y" />
+            <station prestige="N" stationCode="CFST03" stationName="COFFS HARBOUR AIRPORT" truckAvailable="Y" />
+            <station prestige="N" stationCode="CNSC01" stationName="CAIRNS CITY" truckAvailable="Y" />
+            <station prestige="N" stationCode="CNST01" stationName="CAIRNS AIRPORT" truckAvailable="Y" />
+            <station prestige="N" stationCode="DPOC02" stationName="DEVONPORT CITY" truckAvailable="Y" />
+            <station prestige="N" stationCode="DPOP02" stationName="DEVONPORT FERRY" truckAvailable="N" />
+            <station prestige="N" stationCode="DPOT02" stationName="DEVONPORT AIRPORT" truckAvailable="N" />
+            <station prestige="N" stationCode="DRWC01" stationName="DARWIN CITY" truckAvailable="Y" />
+            <station prestige="N" stationCode="DRWT01" stationName="DARWIN AIRPORT" truckAvailable="Y" />
+            <station prestige="N" stationCode="EXMC01" stationName="EXMOUTH CITY" truckAvailable="Y" />
+            <station prestige="N" stationCode="EXMT01" stationName="EXMOUTH-LEARMONTH AIRPORT" truckAvailable="Y" />
+            <station prestige="N" stationCode="GETC03" stationName="GERALDTON CITY" truckAvailable="Y" />
+            <station prestige="N" stationCode="GETT04" stationName="GERALDTON AIRPORT" truckAvailable="Y" />
+            <station prestige="N" stationCode="GEXN01" stationName="GEELONG" truckAvailable="Y" />
+            <station prestige="Y" stationCode="HBAC03" stationName="HOBART CITY" truckAvailable="Y" />
+            <station prestige="Y" stationCode="HBAT02" stationName="HOBART AIRPORT" truckAvailable="N" />
+            <station prestige="N" stationCode="HVBC02" stationName="HERVEY BAY CITY" truckAvailable="Y" />
+            <station prestige="N" stationCode="HVBT02" stationName="HERVEY BAY AIRPORT" truckAvailable="Y" />
+            <station prestige="N" stationCode="JFMW02" stationName="PERTH FREMANTLE BEACONSFIELD" truckAvailable="Y" />
+            <station prestige="N" stationCode="KGIC02" stationName="KALGOORLIE" truckAvailable="Y" />
+            <station prestige="N" stationCode="KGIT03" stationName="KALGOORLIE BOULDER AIRPORT" truckAvailable="Y" />
+            <station prestige="N" stationCode="KTAC02" stationName="KARRATHA CITY" truckAvailable="Y" />
+            <station prestige="N" stationCode="KTAT02" stationName="KARRATHA AIRPORT" truckAvailable="Y" />
+            <station prestige="N" stationCode="LSTC05" stationName="LAUNCESTON CITY" truckAvailable="Y" />
+            <station prestige="N" stationCode="LSTT02" stationName="LAUNCESTON AIRPORT" truckAvailable="N" />
+            <station prestige="N" stationCode="MCYC02" stationName="MAROOCHYDORE - KAWANA" truckAvailable="Y" />
+            <station prestige="N" stationCode="MCYT01" stationName="MAROOCHYDORE AIRPORT" truckAvailable="Y" />
+            <station prestige="Y" stationCode="MELC01" stationName="MELBOURNE CITY" truckAvailable="N" />
+            <station prestige="N" stationCode="MELC02" stationName="MELBOURNE ALBERT PARK" truckAvailable="Y" />
+            <station prestige="N" stationCode="MELC03" stationName="MELBOURNE SOUTH" truckAvailable="Y" />
+            <station prestige="N" stationCode="MELE02" stationName="MELBOURNE DANDENONG" truckAvailable="Y" />
+            <station prestige="N" stationCode="MELE06" stationName="MELBOURNE BLACKBURN" truckAvailable="N" />
+            <station prestige="N" stationCode="MELE07" stationName="MELBOURNE BAYSWATER" truckAvailable="Y" />
+            <station prestige="N" stationCode="MELE09" stationName="MELBOURNE CLAYTON" truckAvailable="Y" />
+            <station prestige="N" stationCode="MELN04" stationName="MELBOURNE TULLAMARINE OFF AIRPORT" truckAvailable="Y" />
+            <station prestige="N" stationCode="MELN07" stationName="MELBOURNE PRESTON" truckAvailable="Y" />
+            <station prestige="N" stationCode="MELN13" stationName="MELBOURNE CAMPBELLFIELD" truckAvailable="Y" />
+            <station prestige="N" stationCode="MELO01" stationName="GOLDCAR MELBOURNE OFF AIRPORT" truckAvailable="N" />
+            <station prestige="N" stationCode="MELS02" stationName="MELBOURNE FRANKSTON" truckAvailable="Y" />
+            <station prestige="N" stationCode="MELS03" stationName="MELBOURNE MOORABBIN" truckAvailable="N" />
+            <station prestige="Y" stationCode="MELT01" stationName="MELBOURNE TULLAMARINE AIRPORT" truckAvailable="Y" />
+            <station prestige="N" stationCode="MELW01" stationName="WERRIBEE" truckAvailable="Y" />
+            <station prestige="N" stationCode="MELW03" stationName="MELBOURNE ALBION" truckAvailable="Y" />
+            <station prestige="N" stationCode="MIMC01" stationName="MERIMBULA CITY" truckAvailable="Y" />
+            <station prestige="N" stationCode="MIMT01" stationName="MERIMBULA AIRPORT" truckAvailable="Y" />
+            <station prestige="N" stationCode="MKYT01" stationName="MACKAY AIRPORT" truckAvailable="Y" />
+            <station prestige="N" stationCode="MTLC03" stationName="MAITLAND - NSW" truckAvailable="N" />
+            <station prestige="N" stationCode="NSOS02" stationName="MUSWELLBROOK" truckAvailable="Y" />
+            <station prestige="N" stationCode="NTLT02" stationName="NEWCASTLE AIRPORT - AUSTRALIA" truckAvailable="Y" />
+            <station prestige="N" stationCode="ONSC02" stationName="ONSLOW" truckAvailable="Y" />
+            <station prestige="Y" stationCode="OOLT01" stationName="GOLD COAST COOLANGATTA AIRPORT" truckAvailable="Y" />
+            <station prestige="N" stationCode="PBOT01" stationName="PARABURDOO AIRPORT" truckAvailable="Y" />
+            <station prestige="N" stationCode="PERC01" stationName="PERTH CITY" truckAvailable="Y" />
+            <station prestige="N" stationCode="PERE03" stationName="PERTH BASSENDEAN" truckAvailable="Y" />
+            <station prestige="N" stationCode="PERE04" stationName="PERTH WELSHPOOL" truckAvailable="Y" />
+            <station prestige="N" stationCode="PERN02" stationName="PERTH OSBORNE PARK" truckAvailable="Y" />
+            <station prestige="N" stationCode="PERT01" stationName="PERTH AIRPORT" truckAvailable="Y" />
+            <station prestige="N" stationCode="PHEC02" stationName="PORT HEDLAND CITY" truckAvailable="Y" />
+            <station prestige="N" stationCode="PHET02" stationName="PORT HEDLAND AIRPORT" truckAvailable="Y" />
+            <station prestige="N" stationCode="PLOT01" stationName="PORT LINCOLN AIRPORT" truckAvailable="Y" />
+            <station prestige="N" stationCode="PPPT01" stationName="AIRLIE BEACH PROSERPINE AIRPORT" truckAvailable="Y" />
+            <station prestige="N" stationCode="ROKT01" stationName="ROCKHAMPTON AIRPORT" truckAvailable="Y" />
+            <station prestige="N" stationCode="SFPC01" stationName="GOLD COAST SOFITEL BROADBEACH" truckAvailable="Y" />
+            <station prestige="N" stationCode="SHQC02" stationName="GOLD COAST SOUTHPORT" truckAvailable="Y" />
+            <station prestige="N" stationCode="SIXC02" stationName="SINGLETON" truckAvailable="Y" />
+            <station prestige="Y" stationCode="SYDC01" stationName="SYDNEY CITY" truckAvailable="N" />
+            <station prestige="N" stationCode="SYDC03" stationName="SYDNEY ALEXANDRIA" truckAvailable="Y" />
+            <station prestige="N" stationCode="SYDE01" stationName="SYDNEY CITY DARLING HARBOUR" truckAvailable="N" />
+            <station prestige="N" stationCode="SYDN01" stationName="SYDNEY ARTARMON" truckAvailable="Y" />
+            <station prestige="N" stationCode="SYDN05" stationName="LISAROW (CENTRAL COAST)" truckAvailable="Y" />
+            <station prestige="N" stationCode="SYDO01" stationName="GOLDCAR SYDNEY OFF AIRPORT" truckAvailable="N" />
+            <station prestige="Y" stationCode="SYDT01" stationName="SYDNEY AIRPORT" truckAvailable="Y" />
+            <station prestige="N" stationCode="SYDW02" stationName="SYDNEY MILPERRA" truckAvailable="N" />
+            <station prestige="N" stationCode="SYDW06" stationName="SYDNEY PARRAMATTA" truckAvailable="Y" />
+            <station prestige="N" stationCode="SYDW07" stationName="SYDNEY BLACKTOWN" truckAvailable="Y" />
+            <station prestige="N" stationCode="SYDW08" stationName="SYDNEY PENRITH" truckAvailable="Y" />
+            <station prestige="N" stationCode="TSVC01" stationName="TOWNSVILLE CITY" truckAvailable="Y" />
+            <station prestige="N" stationCode="TSVT01" stationName="TOWNSVILLE AIRPORT" truckAvailable="Y" />
+            <station prestige="N" stationCode="TWBC02" stationName="TOOWOOMBA" truckAvailable="Y" />
+            <station prestige="N" stationCode="WOLC02" stationName="WOLLONGONG" truckAvailable="Y" />
+            <station prestige="N" stationCode="WTBT02" stationName="TOOWOOMBA WELLCAMP AIRPORT" truckAvailable="Y" />
+            <station prestige="N" stationCode="WYAT01" stationName="WHYALLA AIRPORT" truckAvailable="Y" />
+            <station prestige="N" stationCode="ZNEC01" stationName="NEWMAN" truckAvailable="Y" />
+            <station prestige="N" stationCode="ZNET01" stationName="NEWMAN AIRPORT" truckAvailable="Y" />
