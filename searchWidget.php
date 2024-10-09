@@ -1,3 +1,6 @@
+<?php
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -46,22 +49,18 @@
         // Convert the dates to the desired format
         $formatpickDate = convertDate($pickDate);
         $formatdropDate = convertDate($dropDate);
-
-        // Define the XML request payload for getting cities
-        $xmlRequest = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+        $xmlRequestEuro = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
         <message>
         <serviceRequest serviceCode=\"getCarCategories\">
             <serviceParameters>
             <reservation>
-                <checkout stationID=\'$pickup\' date=\'$formatpickDate\'/>
-                <checkin stationID=\'$dropOff\' date=\'$formatdropDate\'/>
+                <checkout stationID=\"$pickup\" date=\"$formatpickDate\"/>
+                <checkin stationID=\"$dropOff\" date=\"$formatdropDate\"/>
             </reservation>
             </serviceParameters>
         </serviceRequest>
         </message>
-
         ";
-
         // Initialize cURL session
         $ch = curl_init();
 
@@ -71,7 +70,7 @@
 
         // URL-encode the parameters (XML Request, callerCode, and password)
         $postFields = http_build_query([
-        'XML-Request' => $xmlRequest,
+        'XML-Request' => $xmlRequestEuro,
         'callerCode' => '1132097',
         'password' => '02092024',
         ]);
@@ -85,22 +84,17 @@
         ]);
 
         // Execute the cURL request
-        $response = curl_exec($ch);
-
+        $responseEuro = curl_exec($ch);
+        $_SESSION['responseEuro'] = $responseEuro;
         // Check for errors
         if (curl_errno($ch)) {
         echo 'cURL error: ' . curl_error($ch);
         } else {
         // Display the response
-        $xmlres = new SimpleXMLElement($response);
-        echo "<pre>";
-        print_r($xmlres);
-        echo "</pre>";
+        echo "<script>window.location.href='results.php'</script>";
         }
-
         // Close the cURL session
         curl_close($ch);
-
     }
     ?>
 

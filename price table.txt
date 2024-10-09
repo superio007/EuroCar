@@ -1,0 +1,20 @@
+<tr id="Euro">
+                <th class="d-flex justify-content-center" id="Euro_image"><img src="./images/EuroCar.svg" alt=""></th>
+                <?php foreach ($categoriesEuro as $category => $sizes): ?>
+                    <td class="text-center" data-size="<?php echo implode(',', $sizes); ?>">
+                        <?php if (isset($xmlresEuro[$category])): ?>
+                            <?php foreach ($xmlresEuro[$category] as $details): ?>
+                                <?php
+                                // Output the rate and the code
+                                echo 'AUD ' . $details['rate'];
+                                ?>
+                                <br>
+                                <!-- <input type="text" value="<?php echo $details['code']; ?>" hidden> -->
+                                <?php break; // Break to only show the first vehicle of each category ?>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            Not Available
+                        <?php endif; ?>
+                    </td>
+                <?php endforeach; ?>
+            </tr>
