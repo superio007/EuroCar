@@ -18,7 +18,11 @@ session_start();
     <?php
     require "dbconn.php";
     $responseEuro = $_SESSION['responseEuro'];
-    $xmlresEuro = new SimpleXMLElement($responseEuro);
+    if (!empty($_SESSION['responseEuro'])) {
+        $xmlresEuro = new SimpleXMLElement($_SESSION['responseEuro']);
+    } else {
+        echo "No XML response available in session.";
+    }
     $pickUp = $dataArray['pickLocation'] ?? '';
     $drop = $dataArray['dropLocation'] ?? '';
     $sql = $conn->prepare("SELECT * FROM `airport_list` WHERE citycode IN ( ? , ?)");
@@ -48,17 +52,6 @@ session_start();
 
     $pickDate = formatDate($dataArray['pickUpDateTime'] ?? '');
     $dropDate = formatDate($dataArray['dropOffDateTime'] ?? '');
-    // $categoriesEuro = [
-    //     'Economy' => ['E'],
-    //     'Compact' => ['C'],
-    //     'Midsize' => [''],
-    //     // 'LargeSize' => ['FDAR'],
-    //     'LuxurySportsCar' => ['L'],
-    //     'SUV' => ['F'],
-    //     'StationWagon' => ['W'], // Not in the XML
-    //     'VanPeopleCarrier' => ['V'], // Not in the XML
-    //     '7-12PassengerVans' => [] // Not in the XML
-    // ];
     $categoriesEuro = [
         'Economy' => ['CDAR'], // Replace with actual car codes for Economy
         'Compact' => ['CFAR', 'DFAR'],
@@ -131,73 +124,74 @@ session_start();
         $percentage = ($total * $part) / 100;
         return $percentage + $og;
     }
-    // if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['search'])) {
-    //     // Retrieve form data
-    //     $transmission = isset($_GET['transmission']) ? $_GET['transmission'] : '';
-    //     $fuelTypes = isset($_GET['fuelTypes']) ? $_GET['fuelTypes'] : [];
-    //     $mileage = isset($_GET['mileage']) ? $_GET['mileage'] : '';
-    //     $doors = isset($_GET['doors']) ? $_GET['doors'] : '';
+    function filterVehicles($xmlresEuro, $transmission = '', $doors = '', $powerKWMin = '', $powerKWMax = '', $fuelTypes = [])
+    {
+        $vehicleDetails = []; // Array to store filtered vehicles
 
-    //     if (isset($transmission)) {
-    //         // Function to filter XML based on the specified criteria
-    //         function filter($filterContent, $transmission = '', $doors = '', $mileage = '', $fuelTypes = [])
-    //         {
-    //             $vehicleDetails = [];
-    //             if (isset($filterContent->VehAvailRSCore->VehVendorAvails->VehVendorAvail->VehAvails->VehAvail)) {
-    //                 foreach ($filterContent->VehAvailRSCore->VehVendorAvails->VehVendorAvail->VehAvails->VehAvail as $VehAvail) {
-    //                     $Vehicle = $VehAvail->VehAvailCore->Vehicle;
+        // Loop through the car categories provided in the XML
+        foreach ($xmlresEuro->serviceResponse->carCategoryList->carCategory as $vehicle) {
+            $matches = true; // Flag to track if the vehicle matches all conditions
 
-    //                     // Check transmission if specified
-    //                     $transmissionMatch = $transmission ? ((string)$Vehicle['TransmissionType'] === $transmission) : true;
+            // Filter by transmission (automatic or manual)
+            if ($transmission === 'automatic' && (string)$vehicle['carCategoryAutomatic'] !== 'Y') {
+                $matches = false;
+            } elseif ($transmission === 'manual' && (string)$vehicle['carCategoryAutomatic'] !== 'N') {
+                $matches = false;
+            }
 
-    //                     // Check doors if specified
-    //                     $doorsMatch = $doors ? ((string)$Vehicle['DoorCount'] === $doors) : true;
+            // Filter by number of doors
+            if ($doors && (string)$vehicle['carCategoryDoors'] !== $doors) {
+                $matches = false;
+            }
 
-    //                     // Check mileage if specified
-    //                     $mileageMatch = $mileage ? ((string)$VehAvail->VehAvailCore->RentalRate['DistanceIncluded'] === $mileage) : true;
+            // Filter by power (KW) range
+            $powerKW = (float)$vehicle['carCategoryPowerKW'];
+            if ($powerKWMin && $powerKW < (float)$powerKWMin) {
+                $matches = false;
+            }
+            if ($powerKWMax && $powerKW > (float)$powerKWMax) {
+                $matches = false;
+            }
 
-    //                     // Check fuel type if specified
-    //                     $fuelTypeMatch = !empty($fuelTypes) ? in_array((string)$Vehicle['FuelType'], $fuelTypes) : true;
+            // Filter by fuel type
+            if (!empty($fuelTypes) && !in_array((string)$vehicle['fuelTypeCode'], $fuelTypes)) {
+                $matches = false;
+            }
 
-    //                     // If all conditions match, add the vehicle size to the result
-    //                     if ($transmissionMatch && $doorsMatch && $mileageMatch && $fuelTypeMatch) {
-    //                         $vehicleDetails[] = (string)$Vehicle->VehClass['Size']; // Now filtering by size
-    //                     }
-    //                 }
-    //             }
-    //             return $vehicleDetails;
-    //         }
+            // If the vehicle matches all the filters, add it to the result array
+            if ($matches) {
+                $vehicleDetails[] = $vehicle;
+            }
+        }
 
-    //         // Apply the filtering function to each XML response
-    //         $filteredVehiclesZE = filter($xmlresZE, $transmission); // Filter ZE vehicles
-    //         $filteredVehiclesZT = filter($xmlresZT, $transmission); // Filter ZT vehicles
-    //         $filteredVehiclesZR = filter($xmlresZR, $transmission); // Filter ZR vehicles
+        return $vehicleDetails; // Return the filtered vehicle details
+    }
+    if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['search'])) {
+        // Retrieve form data
+        $transmission = isset($_GET['transmission']) ? $_GET['transmission'] : '';
+        $fuelTypes = isset($_GET['fuelTypes']) ? $_GET['fuelTypes'] : [];
+        $mileage = isset($_GET['mileage']) ? $_GET['mileage'] : '';
+        $doors = isset($_GET['doors']) ? $_GET['doors'] : '';
 
-    //         // Function to update vehicle details array based on filtered sizes
-    //         function filterVehicleDetailsBySize($vehicleDetails, $filteredSizes)
-    //         {
-    //             $filteredDetails = [];
-    //             foreach ($vehicleDetails as $category => $vehicles) {
-    //                 foreach ($vehicles as $vehicle) {
-    //                     if (in_array($vehicle['size'], $filteredSizes)) {
-    //                         $filteredDetails[$category][] = $vehicle;
-    //                     }
-    //                 }
-    //             }
-    //             return $filteredDetails;
-    //         }
-
-    //         // Apply the filtering to each vehicle detail array using size
-    //         $vehicleDetailsZE = filterVehicleDetailsBySize($vehicleDetailsZE, $filteredVehiclesZE);
-    //         $vehicleDetailsZT = filterVehicleDetailsBySize($vehicleDetailsZT, $filteredVehiclesZT);
-    //         $vehicleDetailsZR = filterVehicleDetailsBySize($vehicleDetailsZR, $filteredVehiclesZR);
-
-    //         // Uncomment below lines if you want to see the filtered results for debugging
-    //         // echo "<pre>";
-    //         // print_r($vehicleDetailsZE);
-    //         // echo "</pre>";
-    //     }
-    // }
+        if (isset($transmission)) {
+            // Apply the filtering function to each XML response
+            $filteredVehicles = filterVehicles($xmlresEuro, $transmission, $doors, $powerKWMin, $powerKWMax, $fuelTypes); // Filter vehicles
+    
+            // Create new XML structure for filtered results
+            $carsXml = new SimpleXMLElement('<Cars></Cars>');
+    
+            foreach ($filteredVehicles as $vehicle) {
+                $car = $carsXml->addChild('Car');
+                foreach ($vehicle->attributes() as $key => $value) {
+                    $car->addAttribute($key, $value);
+                }
+            }
+    
+            // Output the filtered XML
+            header('Content-Type: text/xml');
+            echo $carsXml->asXML(); // Display the XML structure
+        }
+    }
 
     ?>
     <?php include 'header.php'; ?>
@@ -215,9 +209,9 @@ session_start();
         </div>
     </div>
     <div class="row" style="background: url('./images/res_back.jpg');background-repeat: no-repeat;
-    background-attachment: local;
-    background-size: 100% 100%;
-    height: 14rem;">
+        background-attachment: local;
+        background-size: 100% 100%;
+        height: 14rem;">
         <div class="container align-content-center">
             <h1 class="text-white text-center">
                 Explore, Discover & Save, 24,000 <br>
@@ -282,7 +276,7 @@ session_start();
                     <div class="shown">
                         <input type="radio" id="doors2" name="doors" value="2">
                         <label for="doors2" style="font-size: 1rem;">2</label><br>
-                        <input type="radio" id="doors4" name="doors" value="4+">
+                        <input type="radio" id="doors4" name="doors" value="4">
                         <label for="doors4" style="font-size: 1rem;">4+</label>
                     </div>
                 </details>
@@ -352,57 +346,57 @@ session_start();
     </div>
     <!-- price table desktop-->
     <div id="price_table" class="container d-none d-md-block">
-    <table class="table table-bordered my-4">
-        <thead>
-            <tr>
-                <th scope="col"></th>
-                <th scope="col">
-                    <img src="./images/economy.jpg" alt="">
-                    <p class="text-center">Economy</p>
-                </th>
-                <th scope="col">
-                    <img src="./images/compact.jpg" alt="">
-                    <p class="text-center">Compact </p>
-                </th>
-                <th scope="col">
-                    <img src="./images/midsize.jpg" alt="">
-                    <p class="text-center">Midsize</p>
-                </th>
-                <th scope="col">
-                    <img src="./images/LuxurySportsCar.jpg" alt="">
-                    <p class="text-center">Luxury/Sports Car</p>
-                </th>
-                <th scope="col">
-                    <img src="./images/suv.jpg" alt="">
-                    <p class="text-center">SUV</p>
-                </th>
-                <th scope="col">
-                    <img src="./images/stationwagon.jpg" alt="">
-                    <p class="text-center">Station Wagon</p>
-                </th>
-                <th scope="col">
-                    <img src="./images/VanPeopleCarrier.jpg" alt="">
-                    <p class="text-center">Van/People Carrier</p>
-                </th>
-                <th scope="col">
-                    <img src="./images/7-12PassengerVans.jpg" alt="">
-                    <p class="text-center">7-12 Passenger Vans</p>
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-        <tr id="Euro">
+        <table class="table table-bordered my-4">
+            <thead>
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col">
+                        <img src="./images/economy.jpg" alt="">
+                        <p class="text-center">Economy</p>
+                    </th>
+                    <th scope="col">
+                        <img src="./images/compact.jpg" alt="">
+                        <p class="text-center">Compact </p>
+                    </th>
+                    <th scope="col">
+                        <img src="./images/midsize.jpg" alt="">
+                        <p class="text-center">Midsize</p>
+                    </th>
+                    <th scope="col">
+                        <img src="./images/LuxurySportsCar.jpg" alt="">
+                        <p class="text-center">Luxury/Sports Car</p>
+                    </th>
+                    <th scope="col">
+                        <img src="./images/suv.jpg" alt="">
+                        <p class="text-center">SUV</p>
+                    </th>
+                    <th scope="col">
+                        <img src="./images/stationwagon.jpg" alt="">
+                        <p class="text-center">Station Wagon</p>
+                    </th>
+                    <th scope="col">
+                        <img src="./images/VanPeopleCarrier.jpg" alt="">
+                        <p class="text-center">Van/People Carrier</p>
+                    </th>
+                    <th scope="col">
+                        <img src="./images/7-12PassengerVans.jpg" alt="">
+                        <p class="text-center">7-12 Passenger Vans</p>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+            <tr id="Euro">
                 <th class="d-flex justify-content-center" id="Euro_image">
                     <img src="./images/EuroCar.svg" alt="">
                 </th>
                 <?php
-                
                 // Loop through categories and display rates
                 foreach ($categoriesEuro as $category => $codes) {
                     $found = false; // Track if we find a vehicle in the category
+                    $dataSize = implode(',', $codes); // Dynamically generate the sizes for data-size
 
-                    echo '<td class="text-center">';
-                    
+                    echo '<td class="text-center" data-size="' . $dataSize . '">';
+
                     foreach ($xmlresEuro->serviceResponse->carCategoryList->carCategory as $vehicle) {
                         if (in_array((string)$vehicle['carCategoryCode'], $codes)) {
                             // Display the rate for the first matching vehicle
@@ -421,21 +415,25 @@ session_start();
                 }
                 ?>
             </tr>
-        </tbody>
-    </table>
-</div>
+
+            </tbody>
+        </table>
+    </div>
     <!-- price table mobile-->
     <div id="price_table_mobile" class="container d-md-none">
         <table class="table table-bordered my-4">
             <thead>
                 <tr>
                     <th></th>
-                    <th class="d-flex justify-content-center"><img style="width: 9rem;" src="./images/EuroCar.svg" alt=""></th>
+                    <th class="d-flex justify-content-center">
+                        <img style="width: 9rem;" src="./images/EuroCar.svg" alt="">
+                    </th>
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($categoriesEuro as $category => $sizes): ?>
+                <?php foreach ($categoriesEuro as $category => $codes): ?>
                     <tr>
+                        <!-- Category Column -->
                         <td scope="col" class="text-center align-middle">
                             <div style="display: flex; flex-direction: column; align-items: center;">
                                 <img src="./images/<?php echo strtolower($category); ?>.jpg" alt="" style="max-width: 100px; height: auto;">
@@ -445,41 +443,34 @@ session_start();
                             </div>
                         </td>
 
-                        <?php foreach (['Euro'] as $company): ?>
-                            <td class="text-center mobile" data-size="<?php echo implode(',', $sizes); ?>">
-                                <?php
-                                // Determine which array to use based on the company
-                                $vehicleDetails = $vehicleDetailsEuro;
-                                
+                        <!-- Company Column -->
+                        <td class="text-center mobile" data-size="<?php echo implode(',', $codes); ?>">
+                            <?php
+                            // Loop through vehicle categories and match with the given size codes
+                            $found = false; // Track if we find a vehicle in the category
 
-                                // Check if the category exists in the selected array
-                                if (isset($vehicleDetails[$category])):
-                                    $details = $vehicleDetails[$category];
-                                    // Check if the 'rate' key exists and match with size
-                                    foreach ($details as $detail) {
-                                        if (isset($detail['rate']) && in_array($detail['size'], $sizes)) {
-                                            $val = calculatePercentage($markUp,$detail['rate']);
-                                            echo 'AUD ' . number_format($val, 2);
-                                            break;
-                                        }
-                                    }
-                                ?>
-                                    <br>
-                                    <?php
-                                    // Check if the 'size' key exists before displaying it
-                                    if (isset($detail['size'])): ?>
-                                        <input type="text" value="<?php echo $detail['size']; ?>" hidden>
-                                    <?php endif; ?>
-                                <?php else: ?>
-                                    Not Available
-                                <?php endif; ?>
-                            </td>
-                        <?php endforeach; ?>
+                            foreach ($xmlresEuro->serviceResponse->carCategoryList->carCategory as $vehicle) {
+                                if (in_array((string)$vehicle['carCategoryCode'], $codes)) {
+                                    // Display the rate for the first matching vehicle
+                                    $rate = (float)$vehicle['carCategoryPowerHP']; // Replace with actual rate data if needed
+                                    echo 'AUD ' . number_format($rate, 2);
+                                    $found = true;
+                                    break; // Only display the first matching vehicle
+                                }
+                            }
+
+                            if (!$found) {
+                                echo 'Not Available';
+                            }
+                            ?>
+                        </td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
     </div>
+
+
 
     <!-- result line desktop-->
     <div class="d-none d-md-block">
@@ -498,30 +489,32 @@ session_start();
         </div>
     </div>
     <!-- results cards ZE desktop-->
-    <div class="">
+    <div class="d-none d-md-block">
         <div class="container">
-            <div id="vehicle-list-hertz" class="vehicle-list">
+            <div id="vehicle-list-Euro" class="vehicle-list">
                 <?php
-                // Check if carCategoryList is present
                 if (isset($xmlresEuro->serviceResponse->carCategoryList->carCategory)) {
                     // Loop through each vehicle in the carCategoryList
                     foreach ($xmlresEuro->serviceResponse->carCategoryList->carCategory as $vehicle) {
-                        // Get the vehicle details
-                        $name = (string)$vehicle['carCategorySample'];
-                        $passengers = (string)$vehicle['carCategorySeats'];
-                        $luggage = (string)$vehicle['carCategoryBaggageQuantity'];
-                        $transmission = (string)$vehicle['carCategoryAutomatic'] === 'Y' ? 'Automatic' : 'Manual';
-                        $rate = (float)$vehicle['carCategoryPowerHP']; // Placeholder for rate (replace with actual rate if available)
-                        $final = calculatePercentage($markUp, $rate); // Placeholder for final amount (replace with actual calculation)
-                        $currency = "USD"; // Currency placeholder
-                        $vendor = "Hertz"; // Static vendor name or replace if dynamic
-                        $image = "https://images.hertz.com/vehicles/220x128/default.jpg"; // Use dynamic image if available
-                        $vendorLogo = "./images/hertz.png"; // Use dynamic logos if needed
-                        $reference = (string)$vehicle['carCategoryCode']; // Use carCategoryCode as reference
+                        // Extract details as strings or integers as necessary
+                        $name = (string) $vehicle['carCategorySample']; // Vehicle sample name
+                        $passengers = (string) $vehicle['carCategorySeats']; // Number of seats
+                        $luggage = (string) $vehicle['carCategoryBaggageQuantity']; // Baggage capacity
+                        $transmission = (string) $vehicle['carCategoryAutomatic'] === 'Y' ? 'Automatic' : 'Manual'; // Transmission type
+                        $rate = (float) $vehicle['carCategoryPowerHP']; // Use Power HP as a placeholder for rate
+                        $final = calculatePercentage($markUp, $rate); // Calculate markup
+                        $currency = "USD"; // Placeholder for currency
+                        $vendor = "Hertz"; // Example vendor
+                        $image = "https://images.hertz.com/vehicles/220x128/default.jpg"; // Placeholder image
+                        $vendorLogo = "./images/EuroCar.svg"; // Placeholder for vendor logo
+                        $reference = (string) $vehicle['carCategoryCode']; // Car category code as reference
 
-                        // Output the HTML for each vehicle, hide them initially
+                        // Use the carCategoryCode (e.g., CDAR, CFAR, etc.) as the data-size value
+                        $dataSize = (string) $vehicle['carCategoryCode']; 
+
+                        // Output the vehicle HTML with the correct data-size
                         echo '
-                        <div class="res_card res_hertz vehicle-item" data-size="' . $passengers . '" style="display: none;">
+                        <div class="res_card res_hertz vehicle-item" data-size="' . $dataSize . '">
                             <div class="row">
                                 <div class="col-4 d-grid">
                                     <img style="width:20rem;" src="' . $image . '" alt="' . $name . '">
@@ -583,32 +576,34 @@ session_start();
             </div>
         </div>
     </div>
-
     <!-- results cards ZE mobile-->
     <div class="d-md-none">
         <div>
-            <div id="vehicle-list-hertz-mobile" class="vehicle-list-mobile container">
+            <div id="vehicle-list-Euro-mobile" class="vehicle-list-mobile container">
                 <?php
                 // Loop through each vehicle in the XML
-                if (isset($xmlresZE->VehAvailRSCore->VehVendorAvails->VehVendorAvail->VehAvails->VehAvail)) {
-                    foreach ($xmlresZE->VehAvailRSCore->VehVendorAvails->VehVendorAvail->VehAvails->VehAvail as $vehicle) {
-                        // Get the vehicle details
-                        $size = (int)$vehicle->VehAvailCore->Vehicle->VehClass['Size'];
-                        $name = (string)$vehicle->VehAvailCore->Vehicle->VehMakeModel['Name'];
-                        $transmission = (string)$vehicle->VehAvailCore->Vehicle['TransmissionType'];
-                        $passengers = (string)$vehicle->VehAvailCore->Vehicle['PassengerQuantity'];
-                        $luggage = (string)$vehicle->VehAvailCore->Vehicle['BaggageQuantity'];
-                        $rate = (float)$vehicle->VehAvailCore->TotalCharge['RateTotalAmount'];
-                        $final = calculatePercentage($markUp, $rate);
-                        $currency = (string)$vehicle->VehAvailCore->TotalCharge['CurrencyCode'];
-                        $vendor = (string)$vehicle->VehAvailCore->Vehicle['VendorName'] ?? 'Vendor';
-                        $image = "https://images.hertz.com/vehicles/220x128/" . (string)$vehicle->VehAvailCore->Vehicle->PictureURL;
-                        $vendorLogo = "./images/hertz.png"; // Use dynamic logos if needed
-                        $reference = (string)$vehicle->VehAvailCore->Reference['ID'];
+                if (isset($xmlresEuro->serviceResponse->carCategoryList->carCategory)) {
+                    // Loop through each vehicle in the carCategoryList
+                    foreach ($xmlresEuro->serviceResponse->carCategoryList->carCategory as $vehicle) {
+                        // Extract details as strings or integers as necessary
+                        $name = (string) $vehicle['carCategorySample']; // Vehicle sample name
+                        $passengers = (string) $vehicle['carCategorySeats']; // Number of seats
+                        $luggage = (string) $vehicle['carCategoryBaggageQuantity']; // Baggage capacity
+                        $transmission = (string) $vehicle['carCategoryAutomatic'] === 'Y' ? 'Automatic' : 'Manual'; // Transmission type
+                        $rate = (float) $vehicle['carCategoryPowerHP']; // Use Power HP as a placeholder for rate
+                        $final = calculatePercentage($markUp, $rate); // Calculate markup
+                        $currency = "USD"; // Placeholder for currency
+                        $vendor = "Hertz"; // Example vendor
+                        $image = "https://images.hertz.com/vehicles/220x128/default.jpg"; // Placeholder image
+                        $vendorLogo = "./images/EuroCar.svg"; // Placeholder for vendor logo
+                        $reference = (string) $vehicle['carCategoryCode']; // Car category code as reference
+
+                        // Use the carCategoryCode (e.g., CDAR, CFAR, etc.) as the data-size value
+                        $dataSize = (string) $vehicle['carCategoryCode']; 
 
                         // Output the HTML for each vehicle, hide them initially
                         echo '
-                        <div class="res_card vehicle-item-mobile" data-size="' . $size . '" style="display: none;">
+                        <div class="res_card vehicle-item-mobile" data-size="' . $dataSize . '">
                             <div>
                                 <div class="d-grid">
                                     <img style="width:20rem;" src="' . $image . '" alt="' . $name . '">
@@ -673,89 +668,33 @@ session_start();
     <?php include 'footer.php'; ?>
 </body>
 <script>
-    document.querySelectorAll('td.text-center').forEach(function(td) {
-        td.addEventListener('click', function() {
-            var selectedSizes = td.getAttribute('data-size').split(','); // Get the list of sizes for the selected category
-            var vendorRow = td.closest('tr').id; // Get the id of the closest row to identify the vendor (e.g., hertz, dollar, thrifty)
-
-            // Hide all vehicle lists first
-            document.querySelectorAll('.vehicle-list').forEach(function(list) {
-                list.style.display = 'none'; // Hide all lists
-            });
-
-            // Show the specific vendor's vehicle list
-            var vendorList = document.getElementById('vehicle-list-' + vendorRow);
-            vendorList.style.display = 'block';
-
-            // Hide all vehicles in this list first
-            vendorList.querySelectorAll('.vehicle-item').forEach(function(vehicle) {
-                vehicle.style.display = 'none';
-            });
-
-            // Show the vehicles that match the selected sizes
-            var vehiclesShown = false; // Track whether we display any vehicles
-            var vehicleCount = 0; // Track how many vehicles are displayed
-
-            selectedSizes.forEach(function(size) {
-                var matchingVehicles = vendorList.querySelectorAll('.vehicle-item[data-size="' + size + '"]');
-                matchingVehicles.forEach(function(vehicle) {
-                    vehicle.style.display = 'block';
-                    vehiclesShown = true;
-                    vehicleCount++; // Increment the count for each shown vehicle
-                });
-            });
-
-            // If no vehicles are shown, handle the empty case
-            if (!vehiclesShown) {
-                alert('No matching vehicles found.');
-            }
-
-            // Update the results count dynamically
-            if (vehicleCount > 0) {
-                document.getElementById('results-count').innerText = 'SHOWING ' + vehicleCount + ' RESULTS';
-                document.getElementById('results-count-container').style.display = 'block'; // Show the results count section
-            } else {
-                document.getElementById('results-count-container').style.display = 'none'; // Hide the results count if no vehicles are found
-            }
+    document.addEventListener("DOMContentLoaded", function() {
+        // Hide all res_card elements initially
+        document.querySelectorAll('.res_card').forEach(function(card) {
+            card.style.display = 'none';
         });
-    });
 
+        document.querySelectorAll('td.text-center').forEach(function(td) {
+            td.addEventListener('click', function() {
+                var selectedSizes = td.getAttribute('data-size').split(','); // Get the list of sizes for the selected category
+                var vendorRow = td.closest('tr').id; // Get the id of the closest row to identify the vendor (e.g., hertz, dollar, thrifty)
 
-    document.querySelectorAll('td.mobile').forEach(function(td) {
-        td.addEventListener('click', function() {
-            var selectedSizes = td.getAttribute('data-size').split(','); // Get the list of sizes for the selected category
+                // Hide all vehicle lists first
+                document.querySelectorAll('.vehicle-list').forEach(function(list) {
+                    list.style.display = 'none'; // Hide all lists
+                });
 
-            // Convert the NodeList to an array and then find the index of the clicked td
-            var allTds = Array.prototype.slice.call(td.closest('tr').querySelectorAll('td.mobile'));
-            var companyIndex = allTds.indexOf(td); // Find the index of the clicked td within the row
-
-            // Define the list of companies in the same order as in the HTML
-            var companies = ['hertz', 'dollar', 'thrifty'];
-
-            // Get the company based on the index
-            var vendorRow = companies[companyIndex];
-
-            console.log('vendorRow:', vendorRow); // Debugging line
-
-            if (!vendorRow) {
-                console.error('Could not find a valid vendor row ID.');
-                return; // Exit if vendorRow is not valid
-            }
-
-            // Hide all vehicle lists first
-            document.querySelectorAll('.vehicle-list-mobile').forEach(function(list) {
-                list.style.display = 'none'; // Hide all lists
-            });
-
-            // Construct the ID for the specific vendor's vehicle list
-            var vendorList = document.getElementById('vehicle-list-' + vendorRow + '-mobile');
-
-            // Check if the vendorList exists
-            if (vendorList) {
+                // Show the specific vendor's vehicle list
+                var vendorList = document.getElementById('vehicle-list-' + vendorRow);
                 vendorList.style.display = 'block';
+                if (!vendorList) {
+                    console.error(`Element with id 'vehicle-list-${vendorRow}' not found`);
+                    return;
+                }
+
 
                 // Hide all vehicles in this list first
-                vendorList.querySelectorAll('.vehicle-item-mobile').forEach(function(vehicle) {
+                vendorList.querySelectorAll('.vehicle-item').forEach(function(vehicle) {
                     vehicle.style.display = 'none';
                 });
 
@@ -764,9 +703,9 @@ session_start();
                 var vehicleCount = 0; // Track how many vehicles are displayed
 
                 selectedSizes.forEach(function(size) {
-                    var matchingVehicles = vendorList.querySelectorAll('.vehicle-item-mobile[data-size="' + size + '"]');
+                    var matchingVehicles = vendorList.querySelectorAll('.vehicle-item[data-size="' + size + '"]');
                     matchingVehicles.forEach(function(vehicle) {
-                        vehicle.style.display = 'block';
+                        vehicle.style.display = 'block'; // Show matching vehicles
                         vehiclesShown = true;
                         vehicleCount++; // Increment the count for each shown vehicle
                     });
@@ -779,14 +718,59 @@ session_start();
 
                 // Update the results count dynamically
                 if (vehicleCount > 0) {
+                    document.getElementById('results-count').innerText = 'SHOWING ' + vehicleCount + ' RESULTS';
+                    document.getElementById('results-count-container').style.display = 'block'; // Show the results count section
+                } else {
+                    document.getElementById('results-count-container').style.display = 'none'; // Hide the results count if no vehicles are found
+                }
+            });
+        });
+        // // Add event listener to all 'td.mobile' elements for mobile view
+        document.querySelectorAll('td.mobile').forEach(function(td) {
+            td.addEventListener('click', function() {
+                var selectedSizes = td.getAttribute('data-size').split(','); // Get the list of sizes for the selected category
+                var vendorRow = 'Euro'; // Adjust based on the vendor
+                
+                // Hide all vehicle lists first
+                document.querySelectorAll('.vehicle-list-mobile').forEach(function(list) {
+                    list.style.display = 'none'; // Hide all lists
+                });
+
+                // Show the specific vendor's vehicle list
+                var vendorList = document.getElementById('vehicle-list-' + vendorRow + '-mobile');
+                vendorList.style.display = 'block';
+
+                // Hide all vehicles in this list first
+                vendorList.querySelectorAll('.vehicle-item-mobile').forEach(function(vehicle) {
+                    vehicle.style.display = 'none';
+                });
+
+                // Show the vehicles that match the selected sizes
+                var vehiclesShown = false;
+                var vehicleCount = 0; // Initialize the vehicle count
+
+                selectedSizes.forEach(function(size) {
+                    var matchingVehicles = vendorList.querySelectorAll('.vehicle-item-mobile[data-size="' + size + '"]');
+                    matchingVehicles.forEach(function(vehicle) {
+                        vehicle.style.display = 'block'; // Show matching vehicles
+                        vehiclesShown = true;
+                        vehicleCount++; // Increment the vehicle count
+                    });
+                });
+
+                // If no vehicles are shown, show an alert
+                if (!vehiclesShown) {
+                    alert('No matching vehicles found.');
+                }
+
+                // Update the results count dynamically
+                if (vehicleCount > 0) {
                     document.getElementById('results-count-mobile').innerText = 'SHOWING ' + vehicleCount + ' RESULTS';
                     document.getElementById('results-count-container-mobile').style.display = 'block'; // Show the results count section
                 } else {
                     document.getElementById('results-count-container-mobile').style.display = 'none'; // Hide the results count if no vehicles are found
                 }
-            } else {
-                console.error('Vehicle list with ID "vehicle-list-' + vendorRow + '-mobile" not found.');
-            }
+            });
         });
     });
 </script>
