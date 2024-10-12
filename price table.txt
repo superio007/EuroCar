@@ -1,20 +1,70 @@
-<tr id="Euro">
-                <th class="d-flex justify-content-center" id="Euro_image"><img src="./images/EuroCar.svg" alt=""></th>
-                <?php foreach ($categoriesEuro as $category => $sizes): ?>
-                    <td class="text-center" data-size="<?php echo implode(',', $sizes); ?>">
-                        <?php if (isset($xmlresEuro[$category])): ?>
-                            <?php foreach ($xmlresEuro[$category] as $details): ?>
-                                <?php
-                                // Output the rate and the code
-                                echo 'AUD ' . $details['rate'];
-                                ?>
-                                <br>
-                                <!-- <input type="text" value="<?php echo $details['code']; ?>" hidden> -->
-                                <?php break; // Break to only show the first vehicle of each category ?>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            Not Available
-                        <?php endif; ?>
-                    </td>
-                <?php endforeach; ?>
-            </tr>
+<?php
+session_start();
+$requiredeuroBooking = $_SESSION['requiredeuroBooking'];
+$carCategory = $_GET['reference'];
+$pickup = $requiredeuroBooking['pickup'];
+$dropOff = $requiredeuroBooking['dropOff'];
+$pickDate = $requiredeuroBooking['pickDate'];
+$pickTime = $requiredeuroBooking['pickTime'];
+$dropDate = $requiredeuroBooking['dropDate'];
+$dropTime = $requiredeuroBooking['dropTime'];
+function convertTo24HourFormat($time12Hour) {
+  // Convert the time from 12-hour format to 24-hour format
+  $time24Hour = date("H:i", strtotime($time12Hour));
+
+  // Remove the colon to get the format as 1545 instead of 15:45
+  return str_replace(':', '', $time24Hour);
+}
+$foramtdropTime = convertTo24HourFormat($dropTime);
+$foramtpickTime = convertTo24HourFormat($pickTime);
+// Define the XML request payload
+$xmlRequest = '<?xml version="1.0" encoding="UTF-8"?>
+<message>
+  <serviceRequest serviceCode="bookReservation">
+    <serviceParameters>
+      <reservation carCategory="' . $carCategory . '" rateId="RATE_ID">
+        <checkout stationID="' . $pickup . '" date="' . $pickDate . '" time="' . $foramtpickTime . '"/>
+        <checkin stationID="' . $dropOff . '" date="' . $dropDate . '" time="' . $foramtdropTime . '"/>
+      </reservation>
+      <driver countryOfResidence="XX" firstName="Kiran" lastName="Dhoke"/>
+    </serviceParameters>
+  </serviceRequest>
+</message>
+';
+
+// Prepare the cURL request
+$ch = curl_init();
+
+// Postman sends it as `x-www-form-urlencoded`, so we mimic that by wrapping the XML in `XML-Request`
+$postFields = http_build_query([
+    'XML-Request' => $xmlRequest,
+    'callerCode' => '1132097',
+    'password' => '02092024'
+]);
+
+// Set cURL options
+curl_setopt($ch, CURLOPT_URL, 'https://applications-ptn.europcar.com/xrs/resxml');
+curl_setopt($ch, CURLOPT_POST, 1);
+curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);  // URL encode the fields
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    'Content-Type: application/x-www-form-urlencoded',
+    'Accept: text/xml'
+]);
+
+// Execute the cURL request
+$response = curl_exec($ch);
+var_dump($response);  // Check the full response from the API
+
+
+// Check for cURL errors
+if (curl_errno($ch)) {
+    echo 'cURL error: ' . curl_error($ch);
+} else {
+    echo "<pre>";
+    echo htmlspecialchars($response);  // Escape XML characters for display
+    echo "</pre>";
+}
+
+// Close the cURL session
+curl_close($ch);

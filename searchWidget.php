@@ -26,7 +26,16 @@ session_start();
     require 'dbconn.php';
     $sql = "SELECT * FROM eurocar_locations";
     $result = $conn->query($sql);
+    $groupedLocations = [];
 
+    while ($row = $result->fetch_assoc()) {
+        $city = $row['stationName'];
+        $groupedLocations[$city][] = [
+            'stationCode' => $row['stationCode'],
+            'stationName' => $row['stationName']
+        ];
+    }
+    // var_dump($data);
     function convertDate($date_str) {
         // Convert the string date into a DateTime object using 'm/d/Y' format
         $date_obj = DateTime::createFromFormat('m/d/Y', $date_str);
@@ -91,6 +100,15 @@ session_start();
         echo 'cURL error: ' . curl_error($ch);
         } else {
         // Display the response
+        $requiredeuroBooking = [
+            "pickup" => $pickup,
+            "dropOff" =>$dropOff,
+            "pickDate" => $formatpickDate,
+            "dropDate" => $formatdropDate,
+            "pickTime" => $pickTime,
+            "dropTime" => $dropTime
+        ];
+        $_SESSION['requiredeuroBooking'] = $requiredeuroBooking;
         echo "<script>window.location.href='results.php'</script>";
         }
         // Close the cURL session
@@ -114,13 +132,39 @@ session_start();
             <div class="row">
                 <div class="col-6 d-grid">
                     <label for="pick">Pick UP LOCATION:</label>
-                    <input type="text" name="pick" id="pick" list="airport_name" placeholder="CITY OR AIRPORT CODE" autocomplete="off">
-                    <input type="hidden" name="pickCityCode" id="pickCityCode"> <!-- Hidden input to store citycode -->
+                    <select name="pick" id="pickSelect">
+                        <option value="" selected hidden>CITY OR AIRPORT CODE</option> <!-- Placeholder option -->
+
+                        <!-- Step 4: Loop through the grouped locations to generate the options -->
+                        <?php foreach ($groupedLocations as $city => $locations): ?>
+                            <optgroup label="<?php echo $city; ?>"> <!-- Grouped by city -->
+                                <?php foreach ($locations as $location): ?>
+                                    <option value="<?php echo $location['stationCode']; ?>" data-code="<?php echo $location['stationCode']; ?>">
+                                        <?php echo $location['stationName']; ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </optgroup>
+                        <?php endforeach; ?>
+                    </select>
+                    <input type="hidden" name="pickCityCode" id="pickCityCode"> <!-- Hidden input to store pick-up city code -->
                 </div>
                 <div class="col-6 d-grid">
                     <label for="drop">DROP OFF LOCATION:</label>
-                    <input type="text" name="drop" id="drop" list="airport_name" placeholder="CITY OR AIRPORT CODE" autocomplete="off">
-                    <input type="hidden" name="dropCityCode" id="dropCityCode"> <!-- Hidden input for Drop Off citycode -->
+                    <select name="drop" id="dropSelect">
+                        <option value="" selected hidden>CITY OR AIRPORT CODE</option> <!-- Placeholder option -->
+
+                        <!-- Step 4: Reuse the same grouped data for drop-off locations -->
+                        <?php foreach ($groupedLocations as $city => $locations): ?>
+                            <optgroup label="<?php echo $city; ?>"> <!-- Grouped by city -->
+                                <?php foreach ($locations as $location): ?>
+                                    <option value="<?php echo $location['stationCode']; ?>" data-code="<?php echo $location['stationCode']; ?>">
+                                        <?php echo $location['stationName']; ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </optgroup>
+                        <?php endforeach; ?>
+                    </select>
+                    <input type="hidden" name="dropCityCode" id="dropCityCode"> <!-- Hidden input to store drop-off city code -->
                 </div>
             </div>
             <div class="row">
@@ -196,34 +240,27 @@ session_start();
         </form>
     </div>
     <script>
-        // Function to handle the autocomplete logic
-        function updateCityCode(inputId, hiddenInputId) {
-            var input = document.getElementById(inputId).value;
-            var datalist = document.getElementById('airport_name').options;
-            var cityCode = '';
-
-            // Loop through the datalist options to find a match for the input value
-            for (var i = 0; i < datalist.length; i++) {
-                if (datalist[i].value === input) {
-                    cityCode = datalist[i].getAttribute('data-code');
-                    break;
-                }
-            }
-
-            // Set the hidden input with the corresponding citycode
-            document.getElementById(hiddenInputId).value = cityCode;
-        }
-
-        // Event listeners for Pick Up and Drop Off inputs
-        document.getElementById('pick').addEventListener('input', function() {
-            updateCityCode('pick', 'pickCityCode');
+        document.getElementById('dropSelect').addEventListener('change', function() {
+            // Get the selected option
+            var selectedOption = this.options[this.selectedIndex];
+            
+            // Get the data-code attribute from the selected option
+            var cityCode = selectedOption.getAttribute('data-code');
+            
+            // Set the value of the hidden input to the selected city code
+            document.getElementById('dropCityCode').value = cityCode;
         });
 
-        document.getElementById('drop').addEventListener('input', function() {
-            updateCityCode('drop', 'dropCityCode');
+        document.getElementById('pickSelect').addEventListener('change', function() {
+            // Get the selected option
+            var selectedOption = this.options[this.selectedIndex];
+            
+            // Get the data-code attribute from the selected option
+            var cityCode = selectedOption.getAttribute('data-code');
+            
+            // Set the value of the hidden input to the selected city code
+            document.getElementById('pickCityCode').value = cityCode;
         });
-
-
         document.getElementById('pick').addEventListener('input', function() {
             // Get the Pick Up Location value
             var pickValue = this.value;

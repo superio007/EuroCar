@@ -27,8 +27,8 @@ body{
         border:rgb(5, 121, 230) 1px solid;
     }
 }
-#drop,#pick {
-    caret-color: rgb(5, 121, 230);
+#dropSelect,#pickSelect {
+    padding: 0.3rem;
     &:hover{
         border:rgb(5, 121, 230) 1px solid;
     }

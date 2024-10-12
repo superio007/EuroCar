@@ -53,14 +53,14 @@ session_start();
     $pickDate = formatDate($dataArray['pickUpDateTime'] ?? '');
     $dropDate = formatDate($dataArray['dropOffDateTime'] ?? '');
     $categoriesEuro = [
-        'Economy' => ['CDAR'], // Replace with actual car codes for Economy
-        'Compact' => ['CFAR', 'DFAR'],
-        'Midsize' => ['IDAR'],
-        'Luxury/Sports Car' => ['JDAR', 'LDAR'],
-        'SUV' => ['SFAR', 'JFAR'],
-        'Station Wagon' => ['FWAR'],
-        'Van/People Carrier' => ['PVAR'],
-        '7-12 Passenger Vans' => ['UFAD'] // Replace with actual codes if necessary
+        'Economy' => ['CDAR','XZAR'], // Replace with actual car codes for Economy
+        'Compact' => ['CFAR', 'DFAR', 'CDAR','XZAR'],
+        'Midsize' => ['IDAR','ICAE','ICAR','IDAE','IFAR','XZAR'],
+        'Luxury/Sports Car' => ['JDAR', 'LDAR', 'DFFR', 'SFGV','FDFE','LFAE','PZAR'],
+        'SUV' => ['SFAR', 'JFAR','SFAH','SFBD','SFBR','SFDR','GFAR','FFAR','UFAD','XZAR'],
+        'Station Wagon' => ['FWAR','GWAR','FWAR','XZAR'],
+        'Van/People Carrier' => ['PVAR','PVAV','KMLW','KPLW','XZAR'],
+        '7-12 Passenger Vans' => ['UFAD','XZAR'] // Replace with actual codes if necessary
     ];
 
     function extractVehicleDetailsEuro($xmlResponse, $categoriesEuro)
@@ -124,75 +124,75 @@ session_start();
         $percentage = ($total * $part) / 100;
         return $percentage + $og;
     }
-    function filterVehicles($xmlresEuro, $transmission = '', $doors = '', $powerKWMin = '', $powerKWMax = '', $fuelTypes = [])
-    {
+    function filterVehicles($xmlresEuro, $transmission = '', $doors = '', $fuelTypes = []) {
         $vehicleDetails = []; // Array to store filtered vehicles
-
+    
         // Loop through the car categories provided in the XML
         foreach ($xmlresEuro->serviceResponse->carCategoryList->carCategory as $vehicle) {
             $matches = true; // Flag to track if the vehicle matches all conditions
-
+    
             // Filter by transmission (automatic or manual)
-            if ($transmission === 'automatic' && (string)$vehicle['carCategoryAutomatic'] !== 'Y') {
+            if ($transmission === 'Automatic' && (string)$vehicle['carCategoryAutomatic'] !== "Y") {
                 $matches = false;
-            } elseif ($transmission === 'manual' && (string)$vehicle['carCategoryAutomatic'] !== 'N') {
-                $matches = false;
-            }
-
-            // Filter by number of doors
-            if ($doors && (string)$vehicle['carCategoryDoors'] !== $doors) {
+            } elseif ($transmission === 'Manual' && (string)$vehicle['carCategoryAutomatic'] !== "N") {
                 $matches = false;
             }
-
-            // Filter by power (KW) range
-            $powerKW = (float)$vehicle['carCategoryPowerKW'];
-            if ($powerKWMin && $powerKW < (float)$powerKWMin) {
+    
+            if ($doors === '4+') {
+                // Check if the vehicle has 4 or more doors
+                if ((int)$vehicle['carCategoryDoors'] < 4) {
+                    $matches = false;
+                }
+            } elseif ($doors && (string)$vehicle['carCategoryDoors'] !== $doors) {
                 $matches = false;
             }
-            if ($powerKWMax && $powerKW > (float)$powerKWMax) {
-                $matches = false;
-            }
-
+    
             // Filter by fuel type
-            if (!empty($fuelTypes) && !in_array((string)$vehicle['fuelTypeCode'], $fuelTypes)) {
+            if (!empty($fuelTypes) && !in_array((string)$vehicle['carCategoryType'], $fuelTypes)) {
                 $matches = false;
             }
-
+    
             // If the vehicle matches all the filters, add it to the result array
             if ($matches) {
                 $vehicleDetails[] = $vehicle;
             }
         }
-
+    
         return $vehicleDetails; // Return the filtered vehicle details
     }
+    
     if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['search'])) {
         // Retrieve form data
         $transmission = isset($_GET['transmission']) ? $_GET['transmission'] : '';
         $fuelTypes = isset($_GET['fuelTypes']) ? $_GET['fuelTypes'] : [];
-        $mileage = isset($_GET['mileage']) ? $_GET['mileage'] : '';
         $doors = isset($_GET['doors']) ? $_GET['doors'] : '';
-
+    
         if (isset($transmission)) {
             // Apply the filtering function to each XML response
-            $filteredVehicles = filterVehicles($xmlresEuro, $transmission, $doors, $powerKWMin, $powerKWMax, $fuelTypes); // Filter vehicles
+            $filteredVehicles = filterVehicles($xmlresEuro, $transmission, $doors, $fuelTypes); // Filter vehicles
     
-            // Create new XML structure for filtered results
-            $carsXml = new SimpleXMLElement('<Cars></Cars>');
+            // Create the exact XML structure
+            $messageXml = new SimpleXMLElement('<message></message>');
+            $serviceResponse = $messageXml->addChild('serviceResponse');
+            $carCategoryList = $serviceResponse->addChild('carCategoryList');
     
             foreach ($filteredVehicles as $vehicle) {
-                $car = $carsXml->addChild('Car');
+                // Clone the vehicle's structure and attributes from the original XML
+                $carCategory = $carCategoryList->addChild('carCategory');
                 foreach ($vehicle->attributes() as $key => $value) {
-                    $car->addAttribute($key, $value);
+                    $carCategory->addAttribute($key, $value);
                 }
             }
     
-            // Output the filtered XML
-            header('Content-Type: text/xml');
-            echo $carsXml->asXML(); // Display the XML structure
+            // Output the filtered XML (keeping the original structure intact)
+            // header('Content-Type: text/xml'); // Ensure correct content type is set
+            // echo "<pre>";
+            // var_dump($messageXml); // Display the XML structure
+            // echo "</pre>";
+            $xmlresEuro = $messageXml;
         }
     }
-
+    
     ?>
     <?php include 'header.php'; ?>
     <div class="modal fade bd-example-modal-lg" tabindex="-1" id="popUp" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
@@ -276,7 +276,7 @@ session_start();
                     <div class="shown">
                         <input type="radio" id="doors2" name="doors" value="2">
                         <label for="doors2" style="font-size: 1rem;">2</label><br>
-                        <input type="radio" id="doors4" name="doors" value="4">
+                        <input type="radio" id="doors4" name="doors" value="4+">
                         <label for="doors4" style="font-size: 1rem;">4+</label>
                     </div>
                 </details>
@@ -562,7 +562,7 @@ session_start();
                                     </div>
                                     <div class="res_pay">
                                         <div class="d-flex">
-                                            <a href="book.php?reference=' . $reference . '&vdNo=ZE" class="btn btn-primary">BOOK NOW</a>
+                                            <a href="book.php?reference=' . $reference . '&vdNo=Euro" class="btn btn-primary">BOOK NOW</a>
                                         </div>
                                     </div>
                                 </div>

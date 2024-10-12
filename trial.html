@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  <style>
+    .location-search {
+    width: 300px;
+    position: relative;
+}
+
+.search-box {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.autocomplete-dropdown {
+    display: none; /* Will be shown dynamically */
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ccc;
+    max-height: 200px;
+    overflow-y: auto;
+    width: 100%;
+    z-index: 100;
+}
+
+.location-header {
+    background-color: #f1f1f1;
+    padding: 8px;
+    font-weight: bold;
+}
+
+.location-item, .location-subitem {
+    padding: 8px;
+    border-bottom: 1px solid #ccc;
+    cursor: pointer;
+}
+
+.location-item:hover, .location-subitem:hover {
+    background-color: #eee;
+}
+
+.flag-icon {
+    margin-right: 8px;
+}
+
+.location-type {
+    float: right;
+}
+
+  </style>
+  <div class="location-search">
+    <label for="pickup-location">PICK UP LOCATION:</label>
+    <input type="text" id="pickup-location" class="search-box" placeholder="Enter a location">
+    <div class="autocomplete-dropdown">
+        <div class="location-header">Melbourne, Australia</div>
+        <div class="location-item">
+            <span class="flag-icon">🇦🇺</span> 
+            <span>Melbourne Airport (MEL)</span>
+            <span class="location-type">✈️</span>
+        </div>
+        <div class="location-subitem">Melbourne Airport - Domestic Terminal</div>
+        <div class="location-subitem">Melbourne Airport - International Terminal</div>
+        <div class="location-item">
+            <span class="flag-icon">🇦🇺</span> 
+            <span>Avalon Airport (AVV)</span>
+            <span class="location-type">✈️</span>
+        </div>
+        <div class="location-item">
+            <span class="flag-icon">🇦🇺</span> 
+            <span>Melbourne All Locations</span>
+            <span class="location-type">📍</span>
+        </div>
+        <div class="location-header">Avalon, Australia</div>
+        <div class="location-item">
+            <span class="flag-icon">🇦🇺</span> 
+            <span>Avalon Airport (AVV)</span>
+            <span class="location-type">✈️</span>
+        </div>
+    </div>
+</div>
+<script>
+  $(document).ready(function(){
+    let locations = [
+        { city: "Melbourne, Australia", items: [
+            { name: "Melbourne Airport (MEL)", type: "airport", subitems: ["Domestic Terminal", "International Terminal"] },
+            { name: "Avalon Airport (AVV)", type: "airport" },
+            { name: "Melbourne All Locations", type: "city" }
+        ]},
+        { city: "Avalon, Australia", items: [
+            { name: "Avalon Airport (AVV)", type: "airport" }
+        ]}
+    ];
+
+    // Show/Hide Dropdown
+    $('#pickup-location').on('input', function(){
+        let query = $(this).val().toLowerCase();
+        let dropdown = $('.autocomplete-dropdown');
+        
+        if(query.length > 0){
+            dropdown.empty();
+            locations.forEach(location => {
+                let match = location.items.some(item => item.name.toLowerCase().includes(query));
+                
+                if(match){
+                    dropdown.append('<div class="location-header">' + location.city + '</div>');
+                    location.items.forEach(item => {
+                        if(item.name.toLowerCase().includes(query)){
+                            let icon = item.type === "airport" ? "✈️" : "📍";
+                            dropdown.append('<div class="location-item"><span class="flag-icon">🇦🇺</span>' + item.name + '<span class="location-type">' + icon + '</span></div>');
+                            if(item.subitems){
+                                item.subitems.forEach(sub => {
+                                    dropdown.append('<div class="location-subitem">' + item.name + ' - ' + sub + '</div>');
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+            dropdown.show();
+        } else {
+            dropdown.hide();
+        }
+    });
+
+    // Click Event on Location
+    $('.autocomplete-dropdown').on('click', '.location-item', function(){
+        $('#pickup-location').val($(this).text());
+        $('.autocomplete-dropdown').hide();
+    });
+});
+
+</script>
+</body>
+</html>
