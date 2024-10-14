@@ -488,7 +488,7 @@ session_start();
             </div>
         </div>
     </div>
-    <!-- results cards ZE desktop-->
+    <!-- results cards Euro desktop-->
     <div class="d-none d-md-block">
         <div class="container">
             <div id="vehicle-list-Euro" class="vehicle-list">
@@ -576,7 +576,7 @@ session_start();
             </div>
         </div>
     </div>
-    <!-- results cards ZE mobile-->
+    <!-- results cards Euro mobile-->
     <div class="d-md-none">
         <div>
             <div id="vehicle-list-Euro-mobile" class="vehicle-list-mobile container">
@@ -651,7 +651,7 @@ session_start();
                                     </div>
                                     <div class="res_pay">
                                         <div class="d-flex">
-                                            <a href="book.php?reference=' . $reference . '&vdNo=ZE"; class="btn btn-primary">BOOK NOW</a>
+                                            <a href="book.php?reference=' . $reference . '&vdNo=Euro"; class="btn btn-primary">BOOK NOW</a>
                                         </div>
                                     </div>
                                 </div>

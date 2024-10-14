@@ -1,6 +1,5 @@
 <?php
 session_start();
-$AccessId = $_SESSION['AccessId'];
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
@@ -27,271 +26,135 @@ require 'vendor/autoload.php';
         $vdNo = $_GET['vdNo'];
     }
     if (isset($_GET['reference'])) {
-        $reference = $_GET['reference'];
-    }
-    if ($vdNo == "ZE") {
-        $res = $_SESSION['responseZE'];
-    } elseif ($vdNo == "ZT") {
-        $res = $_SESSION['responseZT'];
-    } else {
-        $res = $_SESSION['responseZR'];
+        $carCategoryCode = $_GET['reference'];
     }
     // $res = $_SESSION['results'];
-    $dataarray = $_SESSION['dataarray'];
-    $xmlres = new SimpleXMLElement($res);
-
+    $requiredeuroBooking = $_SESSION['requiredeuroBooking'];
+    $responseEuro = $_SESSION['responseEuro'];
+    $xmlres = new SimpleXMLElement($responseEuro);
+    $pickup = $requiredeuroBooking['pickup'];
+    $dropOff = $requiredeuroBooking['dropOff'];
+    $pickDate = $requiredeuroBooking['pickDate'];
+    $pickTime = $requiredeuroBooking['pickTime'];
+    $dropDate = $requiredeuroBooking['dropDate'];
+    $dropTime = $requiredeuroBooking['dropTime'];
     // Function to convert SimpleXMLElement to array
     function xmlToArray($xmlObject)
     {
         return json_decode(json_encode($xmlObject), true);
     }
-
-    // Convert the SimpleXMLElement to array
-    $xmlArray = xmlToArray($xmlres);
-
-    function filterResultsByReference($results, $referenceType, $referenceID)
-    {
-        $filteredResults = [];
-
-        // Traverse through the array to locate the vehicles and filter by Reference Type and ID
-        foreach ($results['VehAvailRSCore']['VehVendorAvails']['VehVendorAvail']['VehAvails']['VehAvail'] as $vehAvail) {
-            if (isset($vehAvail['VehAvailCore']['Reference']['@attributes'])) {
-                $ref = $vehAvail['VehAvailCore']['Reference']['@attributes'];
-                if ($ref['Type'] == $referenceType && $ref['ID'] == $referenceID) {
-                    $filteredResults[] = $vehAvail;
-                }
+    function filterCarCategoryByCode($xmlData, $carCategoryCode) {
+        // Convert SimpleXMLElement to an array if necessary
+        $carCategories = $xmlData->serviceResponse->carCategoryList->carCategory;
+        
+        // Initialize an empty array to hold the filtered car category
+        $filteredCategory = [];
+        
+        // Loop through each carCategory in the list
+        foreach ($carCategories as $carCategory) {
+            // Check if the carCategoryCode matches the passed parameter
+            if ((string)$carCategory['carCategoryCode'] === $carCategoryCode) {
+                // Add the matching car category to the filtered array
+                $filteredCategory[] = $carCategory;
             }
         }
-
-        return $filteredResults;
+        
+        // Return the filtered category array
+        return $filteredCategory;
     }
-    $sql = "SELECT MarkupPrice FROM `markup_price`";
-    $result = $conn->query($sql);
-
-    if ($result->num_rows > 0) {
-        // output data of each row
-        while ($row = $result->fetch_assoc()) {
-            $markUp = $row['MarkupPrice'];
+    function convertTo24HourFormat($time12Hour) {
+        // Convert the time from 12-hour format to 24-hour format
+        $time24Hour = date("H:i", strtotime($time12Hour));
+        
+        // Remove the colon to get the format as 1545 instead of 15:45
+        return str_replace(':', '', $time24Hour);
+    }
+    function extractedData($xmlData){
+        foreach($xmlData as $data){
+            $name = (string)$data['carCategorySample'];
+            $transmission = ($data['carCategoryAutomatic'] == 'Y') ? "Automatic" : "Manual";
+            $passengers = (string)$data['carCategorySeats'];
+            $luggage = (string)$data['carCategoryBaggageQuantity'];
+            $currency = (string)$data['carCategoryPowerHP'];
+    
+            // Assuming these variables will be used in the HTML below
+            return compact('name', 'transmission', 'passengers', 'luggage', 'currency');
         }
+    }
+    $filteredData = filterCarCategoryByCode($xmlres, $carCategoryCode);
+    if (!empty($filteredData)) {
+        $carDetails = extractedData($filteredData);
+        $name = $carDetails['name'];
+        $transmission = $carDetails['transmission'];
+        $passengers = $carDetails['passengers'];
+        $luggage = $carDetails['luggage'];
+        $currency = $carDetails['currency'];
     } else {
-        echo "0 results";
+        $name = $transmission = $passengers = $luggage = $currency = "N/A";
     }
-    function calculatePercentage($part, $total)
-    {
-        $og = $total;
-        if ($total == 0) {
-            return "Total cannot be zero"; // To avoid division by zero error
-        }
-        $percentage = ($total * $part) / 100;
-        return $percentage + $og;
-    }
-    // Example usage:
-    $referenceType = "16";
-    $referenceID = $reference;  // Use the ID you want to filter by
-    $filteredResults = filterResultsByReference($xmlArray, $referenceType, $referenceID);
-    $code = $filteredResults[0]['VehAvailCore']['Vehicle']['@attributes']['Code'];
-    // echo $code;
-    if (!empty($filteredResults)) {
-        $vehicle = $filteredResults[0]; // Assuming we want the first matching result
 
-        // Vehicle details
-        $name = $vehicle['VehAvailCore']['Vehicle']['VehMakeModel']['@attributes']['Name'];
-        $transmission = $vehicle['VehAvailCore']['Vehicle']['@attributes']['TransmissionType'];
-        $passengers = $vehicle['VehAvailCore']['Vehicle']['@attributes']['PassengerQuantity'];
-        $luggage = $vehicle['VehAvailCore']['Vehicle']['@attributes']['BaggageQuantity'];
-        $rate = $vehicle['VehAvailCore']['TotalCharge']['@attributes']['RateTotalAmount'];
-        $final = number_format(calculatePercentage($markUp,$rate), 2);
-        $currency = $vehicle['VehAvailCore']['TotalCharge']['@attributes']['CurrencyCode'];
-        $image = $vehicle['VehAvailCore']['Vehicle']['PictureURL'];
-        if ($vdNo == "ZE") {
-            $vendorLogo = "images\hertz.png";
-        } elseif ($vdNo == "ZT") {
-            $vendorLogo = "./images/thrifty.png";
-        } else {
-            $vendorLogo = "images\DOLLARRet.png";
-        }
-    } else {
-        echo "No matching vehicle found.";
-        exit;
-    }
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        // Capture driver information
+    if($_SERVER['REQUEST_METHOD'] == 'POST'){
         $first_name = $_POST['first_name'] ?? '';
         $last_name = $_POST['last_name'] ?? '';
-        $email = $_POST['email'] ?? '';
-        $mobile_number = $_POST['phone'] ?? '';
-        $mobile_country_code = $_POST['mobile_country_code'];
+        $foramtdropTime = convertTo24HourFormat($dropTime);
+        $foramtpickTime = convertTo24HourFormat($pickTime);
+        // Define the XML request payload
+        $xmlRequest = '<?xml version="1.0" encoding="UTF-8"?>
+        <message>
+        <serviceRequest serviceCode="bookReservation">
+            <serviceParameters>
+            <reservation carCategory="' . $carCategoryCode . '" rateId="RATE_ID">
+                <checkout stationID="' . $pickup . '" date="' . $pickDate . '" time="' . $foramtpickTime . '"/>
+                <checkin stationID="' . $dropOff . '" date="' . $dropDate . '" time="' . $foramtdropTime . '"/>
+            </reservation>
+            <driver countryOfResidence="XX" firstName="Kiran" lastName="Dhoke"/>
+            </serviceParameters>
+        </serviceRequest>
+        </message>
+        ';
 
-        // Capture billing information
-        $stateCode = $_POST['State'] ?? '';
-        $country = $_POST['country'] ?? '';
-        $address = $_POST['address'] ?? '';
-        $postal_code = $_POST['postal_code'] ?? '';
-        $city = $_POST['city'] ?? '';
-        $pickupLocation = $dataarray['pickLocation'];
-        $returnLocation = $dataarray['dropLocation'] ?? $dataarray['pickLocation'];
-        $pickupDateTime =  $dataarray['pickUpDateTime'];
-        $returnDateTime = $dataarray['dropOffDateTime'];
-        $voucher = "12345678";
+        // Prepare the cURL request
+        $ch = curl_init();
 
-        // Capture checkbox values
-        $sign_up = isset($_POST['sign_up']) ? 'Yes' : 'No';
-        $terms = isset($_POST['terms']) ? 'Accepted' : 'Not Accepted';
+        // Postman sends it as `x-www-form-urlencoded`, so we mimic that by wrapping the XML in `XML-Request`
+        $postFields = http_build_query([
+            'XML-Request' => $xmlRequest,
+            'callerCode' => '1132097',
+            'password' => '02092024'
+        ]);
 
-        $usersInfo = [
-            'fName' => $first_name,
-            'lName' => $last_name,
-            'email' => $email,
-            'countryCode' => $mobile_country_code,
-            'mobileNo' => $mobile_number,
-            'address' => $address,
-            'city' => $city,
-            'state' => $stateCode,
-            'pickDate' => $pickupDateTime,
-            'dropDate' => $returnDateTime,
-            'pick' => $pickupLocation,
-            'drop' => $returnLocation,
-        ];
-        $_SESSION['userInfo'] = $usersInfo;
+        // Set cURL options
+        curl_setopt($ch, CURLOPT_URL, 'https://applications-ptn.europcar.com/xrs/resxml');
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);  // URL encode the fields
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/x-www-form-urlencoded',
+            'Accept: text/xml'
+        ]);
 
-        // Validation and processing logic here
-        if (empty($first_name) && empty($last_name) && empty($email) && empty($age) && empty($terms)) {
-            echo "Please fill all required fields.";
+        // Execute the cURL request
+        $response = curl_exec($ch);
+        echo "<script>alert($response)</script>";  // Check the full response from the API
+
+
+        // Check for cURL errors
+        if (curl_errno($ch)) {
+            echo 'cURL error: ' . curl_error($ch);
         } else {
-            $xml = "
-                    <OTA_VehResRQ xmlns=\"http://www.opentravel.org/OTA/2003/05\" Version=\"1.008\">
-                        <POS>
-                            <Source ISOCountry=\"IN\" AgentDutyCode=\"T17R16L5D11\">
-                                <RequestorID Type=\"4\" ID=\"X975\">
-                                    <CompanyName Code=\"CP\" CodeContext=\"4PH5\"/>
-                                </RequestorID>
-                            </Source>
-                        </POS>
-                        <VehResRQCore>
-                            <VehRentalCore PickUpDateTime=\"$pickupDateTime\" ReturnDateTime=\"$returnDateTime\">
-                                <PickUpLocation LocationCode=\"$pickupLocation\" CodeContext=\"IATA\"/>
-                                <ReturnLocation LocationCode=\"$returnLocation\" CodeContext=\"IATA\"/>
-                            </VehRentalCore>
-                            <Customer>
-                                <Primary>
-                                    <PersonName>
-                                        <GivenName>$first_name</GivenName>
-                                        <Surname>$last_name</Surname>
-                                    </PersonName>
-                                    <Email>$email</Email>
-                                    <Address>
-                                        <AddressLine>$address</AddressLine>
-                                        <CityName>$city</CityName>
-                                        <StateProv StateCode=\"$stateCode\"/>
-                                        <CountryName Code=\"$mobile_country_code\"/>
-                                    </Address>
-                                </Primary>
-                            </Customer>
-                            <VendorPref Code=\"$vdNo\"/>
-                            <VehPref Code=\"$code\" CodeContext=\"SIPP\"/>
-                            <RentalPaymentPref>
-                                <Voucher Identifier=\"$voucher\" IdentifierContext=\"TestVoucher\"/>
-                            </RentalPaymentPref>
-                        </VehResRQCore>
-                    </OTA_VehResRQ>";
-            // Initialize cURL session
-            $ch = curl_init();
-            // var_dump($xml);
-
-            // Set cURL options
-            curl_setopt($ch, CURLOPT_URL, "https://vv.xqual.hertz.com/DirectLinkWEB/handlers/DirectLinkHandler?id=ota2007a");
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Content-Type: application/xml',
-                'Content-Length: ' . strlen($xml)
-            ]);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-
-            // Execute cURL request and get the response
-            $response = curl_exec($ch);
-
-            if ($response === false) {
-                $error = curl_error($ch);
-                curl_close($ch);
-                die('cURL Error: ' . $error);
-            } else {
-                $xmlres = new SimpleXMLElement($response);
-
-                // Check if the <Success> tag exists
-                if (isset($xmlres->Success)) {
-                    // If <Success> tag is present, print a success message
-                    echo "Success! The vehicle reservation was processed successfully.";
-                    // Retrieve and print the name
-                    $givenName = $xmlres->VehResRSCore->VehReservation->Customer->Primary->PersonName->GivenName;
-                    $surname = $xmlres->VehResRSCore->VehReservation->Customer->Primary->PersonName->Surname;
-
-                    // Retrieve and print the ConfID
-                    $confID = $xmlres->VehResRSCore->VehReservation->VehSegmentCore->ConfID['ID'];
-
-                    // Retrieve and print the car name
-                    $carName = $xmlres->VehResRSCore->VehReservation->VehSegmentCore->Vehicle->VehMakeModel['Name'];
-                    $sql = "INSERT INTO `bookings`(`Id`, `FirstName`, `LastName`, `ConfirmedId`, `CarName`, `AccessId`) VALUES ('','$givenName','$surname','$confID','$carName','$AccessId')";
-
-                    if ($conn->query($sql) === TRUE) {
-                        echo "<script>console.log(\"New record created successfully\")</script>";
-                    } else {
-                        echo "<script>console.log(\"Error: \" . $sql . \"<br>\" . $conn->error\")</script>";
-                    }
-
-                    $conn->close();
-                    // Create an instance of PHPMailer
-                    $mail = new PHPMailer(true);
-
-                    try {
-                        // Server settings
-                        $mail->isSMTP();                                 // Set mailer to use SMTP
-                        $mail->Host       = 'smtp.gmail.com';          // Specify main and backup SMTP servers
-                        $mail->SMTPAuth   = true;                        // Enable SMTP authentication
-                        $mail->Username   = 'dhokekiran98@gmail.com';    // SMTP username
-                        $mail->Password   = 'fzepmsgxliiticxs';       // SMTP password
-                        $mail->SMTPSecure = 'tls';                        // Enable TLS encryption, `ssl` also accepted
-                        $mail->Port       = 587;                         // TCP port to connect to
-
-                        // Recipients
-                        $mail->setFrom("dhokekiran98@gmail.com", "Hertz_Support");
-                        $mail->addAddress($email, $first_name . " " .  $last_name);
-
-                        // Content
-                        $mail->isHTML(true);                            // Set email format to HTML
-                        $mail->Subject = "Confirmation from hertz : $confID";
-                        $mail->Body    = "Passengers given name : $givenName <br> Passengers surname : $surname <br> Car booked : $carName <br> Check details : 
-                        <a href='detail.php?confId=$confID&surname=$surname' 
-                        style='background-color: #ffd207; color:#0d7fa6; padding: 5px; text-decoration: none; border-radius: 5px;'>Click Here</a>
-                        ";
-                        $mail->AltBody = '';
-
-                        if ($mail->send()) {
-                            echo "<script>window.location.href='sucess.php?cnfNo=$confID&lName=$surname&rate=$final'</script>";
-                        }
-                        // echo 'Message has been sent';
-                    } catch (Exception $e) {
-                        echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
-                    }
-                } else {
-                    //if not sucess
-                    echo "<script>
-                            alert('Vehicle is not available, please try again!');
-                            window.location.href = 'index.php';
-                        </script>";
-                    unset($_SESSION['dataarray']);
-                    unset($_SESSION['responseZR']);
-                    unset($_SESSION['responseZT']);
-                    unset($_SESSION['responseZE']);
-                    unset($_SESSION['userInfo']);
-                }
-                // Close cURL session
-                curl_close($ch);
-            }
+            echo "<pre>";
+            echo htmlspecialchars($response);  // Escape XML characters for display
+            echo "</pre>";
         }
+
+        // Close the cURL session
+        curl_close($ch);
     }
+    $filteredData = filterCarCategoryByCode($xmlres, $carCategoryCode);
+    extractedData($filteredData);
+    // Convert the SimpleXMLElement to array
+    $xmlArrayBookingInfo = xmlToArray($requiredeuroBooking);
+    $xmlArrayBookingDetails = xmlToArray($responseEuro);
 ?>
 
 <body>
@@ -396,12 +259,14 @@ require 'vendor/autoload.php';
                     <h4>Reservation Information</h4>
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target=".bd-example-modal-lg">MODIFY</button>
                 </div>
-                <div class="d-grid justify-content-center">
-                    <img src="https://images.hertz.com/vehicles/220x128/<?php echo $image; ?>" alt="<?php echo $name; ?>">
-                    <div class="d-flex justify-content-end">
-                        <img src="<?php echo $vendorLogo; ?>" alt="">
+                <?php if ($vdNo !== "Euro"): ?>
+                    <div class="d-grid justify-content-center">
+                        <img src="https://images.hertz.com/vehicles/220x128/<?php echo $image; ?>" alt="<?php echo $name; ?>">
+                        <div class="d-flex justify-content-end">
+                            <img src="<?php echo $vendorLogo; ?>" alt="Vendor Logo">
+                        </div>
                     </div>
-                </div>
+                <?php endif; ?>
                 <div class="mt-3 p-3">
                     <h3><strong><?php echo $name; ?></strong></h3>
                     <p>OR SIMILAR | <?php echo strtoupper($transmission); ?> CLASS</p>
@@ -440,7 +305,7 @@ require 'vendor/autoload.php';
                 <div class="p-3">
                     <div class="d-flex justify-content-between ">
                         <p style="font-size:x-large; font-weight: 700;">Total Rental</p>
-                        <p style="font-size:x-large; font-weight: 700;"><?php echo $currency; ?><?php echo number_format($final, 2); ?></p>
+                        <p style="font-size:x-large; font-weight: 700;"><?php echo number_format($currency, 2); ?></p>
                     </div>
                 </div>
             </div>

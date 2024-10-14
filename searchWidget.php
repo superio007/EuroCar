@@ -29,7 +29,7 @@ session_start();
     $groupedLocations = [];
 
     while ($row = $result->fetch_assoc()) {
-        $city = $row['stationName'];
+        $city = $row['City'];
         $groupedLocations[$city][] = [
             'stationCode' => $row['stationCode'],
             'stationName' => $row['stationName']
@@ -47,7 +47,6 @@ session_start();
             return "Invalid date format!";
         }
     }
-
     if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['search_btn'])) {
         $pickup = $_POST['pickCityCode'];
         $dropOff = $_POST['dropCityCode'];
@@ -94,7 +93,6 @@ session_start();
 
         // Execute the cURL request
         $responseEuro = curl_exec($ch);
-        $_SESSION['responseEuro'] = $responseEuro;
         // Check for errors
         if (curl_errno($ch)) {
         echo 'cURL error: ' . curl_error($ch);
@@ -108,6 +106,7 @@ session_start();
             "pickTime" => $pickTime,
             "dropTime" => $dropTime
         ];
+        $_SESSION['responseEuro'] = $responseEuro;
         $_SESSION['requiredeuroBooking'] = $requiredeuroBooking;
         echo "<script>window.location.href='results.php'</script>";
         }
@@ -130,41 +129,21 @@ session_start();
                 <h2>SEARCH FOR CAR PRICES</h2>
             </div>
             <div class="row">
-                <div class="col-6 d-grid">
-                    <label for="pick">Pick UP LOCATION:</label>
-                    <select name="pick" id="pickSelect">
-                        <option value="" selected hidden>CITY OR AIRPORT CODE</option> <!-- Placeholder option -->
-
-                        <!-- Step 4: Loop through the grouped locations to generate the options -->
-                        <?php foreach ($groupedLocations as $city => $locations): ?>
-                            <optgroup label="<?php echo $city; ?>"> <!-- Grouped by city -->
-                                <?php foreach ($locations as $location): ?>
-                                    <option value="<?php echo $location['stationCode']; ?>" data-code="<?php echo $location['stationCode']; ?>">
-                                        <?php echo $location['stationName']; ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </optgroup>
-                        <?php endforeach; ?>
-                    </select>
+                <div class="col-6 d-grid position-relative">
+                    <label for="pick">PICK UP LOCATION:</label>
+                    <input type="text" name="pick" id="pickInput" class="form-control" placeholder="Enter city or airport code">
                     <input type="hidden" name="pickCityCode" id="pickCityCode"> <!-- Hidden input to store pick-up city code -->
-                </div>
-                <div class="col-6 d-grid">
-                    <label for="drop">DROP OFF LOCATION:</label>
-                    <select name="drop" id="dropSelect">
-                        <option value="" selected hidden>CITY OR AIRPORT CODE</option> <!-- Placeholder option -->
 
-                        <!-- Step 4: Reuse the same grouped data for drop-off locations -->
-                        <?php foreach ($groupedLocations as $city => $locations): ?>
-                            <optgroup label="<?php echo $city; ?>"> <!-- Grouped by city -->
-                                <?php foreach ($locations as $location): ?>
-                                    <option value="<?php echo $location['stationCode']; ?>" data-code="<?php echo $location['stationCode']; ?>">
-                                        <?php echo $location['stationName']; ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </optgroup>
-                        <?php endforeach; ?>
-                    </select>
+                    <!-- Suggestion box -->
+                    <div id="suggestionBox" class="suggestion-box bg-white border rounded position-absolute" style="display:none;"></div>
+                </div>
+                <div class="col-6 d-grid position-relative">
+                    <label for="drop">DROP OFF LOCATION:</label>
+                    <input type="text" name="drop" id="dropInput" class="form-control" placeholder="Enter city or airport code">
                     <input type="hidden" name="dropCityCode" id="dropCityCode"> <!-- Hidden input to store drop-off city code -->
+
+                    <!-- Suggestion box for drop-off locations -->
+                    <div id="dropSuggestionBox" class="suggestion-box bg-white border rounded position-absolute" style="display:none;"></div>
                 </div>
             </div>
             <div class="row">
@@ -207,11 +186,13 @@ session_start();
                     <label for="mobile_pick">Pick Up Location:</label>
                     <input type="text" name="pick" id="mobile_pick" list="airport_name" placeholder="CITY OR AIRPORT CODE" autocomplete="off" class="form-control">
                     <input type="hidden" name="pickCityCode" id="mobile_pickCityCode">
+                    <div id="suggestionBox-mobile" class="suggestionBox-mobile bg-white border rounded position-absolute" style="display:none;"></div>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="mobile_drop">Drop Off Location:</label>
                     <input type="text" name="drop" id="mobile_drop" list="airport_name" placeholder="CITY OR AIRPORT CODE" autocomplete="off" class="form-control">
                     <input type="hidden" name="dropCityCode" id="mobile_dropCityCode">
+                    <div id="drop-suggestionBox-mobile" class="drop-suggestionBox-mobile bg-white border rounded position-absolute" style="display:none;"></div>
                 </div>
             </div>
             <div class="row">
@@ -240,88 +221,313 @@ session_start();
         </form>
     </div>
     <script>
-        document.getElementById('dropSelect').addEventListener('change', function() {
-            // Get the selected option
-            var selectedOption = this.options[this.selectedIndex];
-            
-            // Get the data-code attribute from the selected option
-            var cityCode = selectedOption.getAttribute('data-code');
-            
-            // Set the value of the hidden input to the selected city code
-            document.getElementById('dropCityCode').value = cityCode;
-        });
+       $(document).ready(function() {
+        // Event listener for input on pick-up location input field
+        $('#pickInput').on('input', function() {
+            var inputValue = $(this).val().trim();
 
-        document.getElementById('pickSelect').addEventListener('change', function() {
-            // Get the selected option
-            var selectedOption = this.options[this.selectedIndex];
-            
-            // Get the data-code attribute from the selected option
-            var cityCode = selectedOption.getAttribute('data-code');
-            
-            // Set the value of the hidden input to the selected city code
-            document.getElementById('pickCityCode').value = cityCode;
-        });
-        document.getElementById('pick').addEventListener('input', function() {
-            // Get the Pick Up Location value
-            var pickValue = this.value;
+            if (inputValue.length >= 3) {
+                $.ajax({
+                    url: 'getStations.php',
+                    method: 'POST',
+                    data: { searchTerm: inputValue },
+                    success: function(response) {
+                        var stations = JSON.parse(response); // Parse the JSON response
 
-            // Set the Drop Off Location to the same value
-            document.getElementById('drop').value = pickValue;
+                        // Clear the suggestion box
+                        $('#suggestionBox').empty().show();
 
-            // Also copy the Pick Up City Code to the Drop Off City Code
-            var pickCityCodeValue = document.getElementById('pickCityCode').value;
-            document.getElementById('dropCityCode').value = pickCityCodeValue;
-        });
+                        if (stations.message) {
+                            // Show "No data found" message
+                            $('#suggestionBox').append(`
+                                <div class="no-data-message" style="padding: 10px; color: red;">
+                                    ${stations.message}
+                                </div>
+                            `);
+                        } else {
+                            // Group stations by city
+                            var groupedStations = stations.reduce(function(grouped, station) {
+                                var city = station.city;
+                                if (!grouped[city]) {
+                                    grouped[city] = [];
+                                }
+                                grouped[city].push(station);
+                                return grouped;
+                            }, {});
 
-        // mobile version 
+                            // Loop through the grouped stations and append them to the suggestion box
+                            Object.keys(groupedStations).forEach(function(city) {
+                                var cityStations = groupedStations[city];
 
-        // Event listeners for Pick Up and Drop Off inputs
-        document.getElementById('mobile_pick').addEventListener('input', function() {
-            updateCityCode('mobile_pick', 'mobile_pickCityCode');
-        });
+                                $('#suggestionBox').append(`
+                                    <div class="city-header" style="font-weight: bold; padding: 10px 5px; background-color: #f5f5f5;">
+                                        ${city} (${cityStations.length} Matches)
+                                    </div>
+                                `);
 
-        document.getElementById('mobile_drop').addEventListener('input', function() {
-            updateCityCode('mobile_drop', 'mobile_dropCityCode');
-        });
+                                cityStations.forEach(function(station) {
+                                    $('#suggestionBox').append(`
+                                        <div class="suggestion-item" data-code="${station.stationCode}">
+                                            ${station.stationName}
+                                        </div>
+                                    `);
+                                });
+                            });
 
+                            // Handle click on suggestion items
+                            $('.suggestion-item').on('click', function() {
+                                var stationName = $(this).text().trim();
+                                var stationCode = $(this).data('code');
 
-        document.getElementById('mobile_pick').addEventListener('input', function() {
-            // Get the Pick Up Location value
-            var pickValue = this.value;
+                                $('#pickInput').val(stationName);
+                                $('#pickCityCode').val(stationCode);
+                                $('#dropInput').val(stationName);
+                                $('#dropCityCode').val(stationCode);
 
-            // Set the Drop Off Location to the same value
-            document.getElementById('mobile_drop').value = pickValue;
+                                $('#suggestionBox').hide();
+                            });
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.error('Error during AJAX request:', textStatus, errorThrown);
+                    }
+                });
+            } else {
+                $('#suggestionBox').hide();
+            }
+        });
+        // Event listener for input on pick-up location input field for mobile
+        $('#mobile_pick').on('input', function() {
+            var inputValue = $(this).val().trim();
 
-            // Also copy the Pick Up City Code to the Drop Off City Code
-            var pickCityCodeValue = document.getElementById('mobile_pickCityCode').value;
-            document.getElementById('mobile_dropCityCode').value = pickCityCodeValue;
-        });
+            if (inputValue.length >= 3) {
+                $.ajax({
+                    url: 'getStations.php',
+                    method: 'POST',
+                    data: { searchTerm: inputValue },
+                    success: function(response) {
+                        var stations = JSON.parse(response);
 
-        $(function() {
-            $("#pickDate").datepicker();
+                        // Clear the mobile suggestion box
+                        $('#suggestionBox-mobile').empty().show();
+
+                        if (stations.message) {
+                            $('#suggestionBox-mobile').append(`
+                                <div class="no-data-message" style="padding: 10px; color: red;">
+                                    ${stations.message}
+                                </div>
+                            `);
+                        } else {
+                            var groupedStations = stations.reduce(function(grouped, station) {
+                                var city = station.city;
+                                if (!grouped[city]) {
+                                    grouped[city] = [];
+                                }
+                                grouped[city].push(station);
+                                return grouped;
+                            }, {});
+
+                            Object.keys(groupedStations).forEach(function(city) {
+                                var cityStations = groupedStations[city];
+
+                                $('#suggestionBox-mobile').append(`
+                                    <div class="city-header" style="font-weight: bold; padding: 10px 5px; background-color: #f5f5f5;">
+                                        ${city} (${cityStations.length} Matches)
+                                    </div>
+                                `);
+
+                                cityStations.forEach(function(station) {
+                                    $('#suggestionBox-mobile').append(`
+                                        <div class="suggestion-item-mobile" data-code="${station.stationCode}">
+                                            ${station.stationName}
+                                        </div>
+                                    `);
+                                });
+                            });
+
+                            // Handle click on mobile suggestion items
+                            $('.suggestion-item-mobile').on('click', function() {
+                                var stationName = $(this).text().trim();
+                                var stationCode = $(this).data('code');
+
+                                $('#mobile_pick').val(stationName);
+                                $('#mobile_pickCityCode').val(stationCode);
+                                $('#mobile_drop').val(stationName);
+                                $('#mobile_dropCityCode').val(stationCode);
+
+                                $('#suggestionBox-mobile').hide();
+                            });
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.error('Error during AJAX request:', textStatus, errorThrown);
+                    }
+                });
+            } else {
+                $('#suggestionBox-mobile').hide();
+            }
         });
-        $(document).ready(function() {
-            $('#pickTime').timepicker({});
+        // Event listener for drop-off location
+        $('#dropInput').on('input', function() {
+            var inputValue = $(this).val().trim();
+
+            if (inputValue.length >= 3) {
+                $.ajax({
+                    url: 'getStations.php',
+                    method: 'POST',
+                    data: { searchTerm: inputValue },
+                    success: function(response) {
+                        var stations = JSON.parse(response);
+
+                        $('#dropSuggestionBox').empty().show();
+
+                        if (stations.message) {
+                            $('#dropSuggestionBox').append(`
+                                <div class="no-data-message" style="padding: 10px; color: red;">
+                                    ${stations.message}
+                                </div>
+                            `);
+                        } else {
+                            var groupedStations = stations.reduce(function(grouped, station) {
+                                var city = station.city;
+                                if (!grouped[city]) {
+                                    grouped[city] = [];
+                                }
+                                grouped[city].push(station);
+                                return grouped;
+                            }, {});
+
+                            Object.keys(groupedStations).forEach(function(city) {
+                                var cityStations = groupedStations[city];
+
+                                $('#dropSuggestionBox').append(`
+                                    <div class="city-header" style="font-weight: bold; padding: 10px 5px; background-color: #f5f5f5;">
+                                        ${city} (${cityStations.length} Matches)
+                                    </div>
+                                `);
+
+                                cityStations.forEach(function(station) {
+                                    $('#dropSuggestionBox').append(`
+                                        <div class="suggestion-item" data-code="${station.stationCode}">
+                                            ${station.stationName}
+                                        </div>
+                                    `);
+                                });
+                            });
+
+                            // Handle click on suggestion items
+                            $('.suggestion-item').on('click', function() {
+                                var stationName = $(this).text().trim();
+                                var stationCode = $(this).data('code');
+
+                                $('#dropInput').val(stationName);
+                                $('#dropCityCode').val(stationCode);
+
+                                $('#dropSuggestionBox').hide();
+                            });
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.error('Error during AJAX request:', textStatus, errorThrown);
+                    }
+                });
+            } else {
+                $('#dropSuggestionBox').hide();
+            }
         });
-        $(function() {
-            $("#dropDate").datepicker();
+        // Similar logic for mobile drop-off location
+        $('#mobile_drop').on('input', function() {
+            var inputValue = $(this).val().trim();
+
+            if (inputValue.length >= 3) {
+                $.ajax({
+                    url: 'getStations.php',
+                    method: 'POST',
+                    data: { searchTerm: inputValue },
+                    success: function(response) {
+                        var stations = JSON.parse(response);
+
+                        $('#drop-suggestionBox-mobile').empty().show();
+
+                        if (stations.message) {
+                            $('#drop-suggestionBox-mobile').append(`
+                                <div class="no-data-message" style="padding: 10px; color: red;">
+                                    ${stations.message}
+                                </div>
+                            `);
+                        } else {
+                            var groupedStations = stations.reduce(function(grouped, station) {
+                                var city = station.city;
+                                if (!grouped[city]) {
+                                    grouped[city] = [];
+                                }
+                                grouped[city].push(station);
+                                return grouped;
+                            }, {});
+
+                            Object.keys(groupedStations).forEach(function(city) {
+                                var cityStations = groupedStations[city];
+
+                                $('#drop-suggestionBox-mobile').append(`
+                                    <div class="city-header" style="font-weight: bold; padding: 10px 5px; background-color: #f5f5f5;">
+                                        ${city} (${cityStations.length} Matches)
+                                    </div>
+                                `);
+
+                                cityStations.forEach(function(station) {
+                                    $('#drop-suggestionBox-mobile').append(`
+                                        <div class="drop-suggestion-item-mobile" data-code="${station.stationCode}">
+                                            ${station.stationName}
+                                        </div>
+                                    `);
+                                });
+                            });
+
+                            $('.drop-suggestion-item-mobile').on('click', function() {
+                                var stationName = $(this).text().trim();
+                                var stationCode = $(this).data('code');
+
+                                $('#mobile_drop').val(stationName);
+                                $('#mobile_dropCityCode').val(stationCode);
+
+                                $('#drop-suggestionBox-mobile').hide();
+                            });
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.error('Error during AJAX request:', textStatus, errorThrown);
+                    }
+                });
+            } else {
+                $('#drop-suggestionBox-mobile').hide();
+            }
         });
-        $(document).ready(function() {
-            $('#dropTime').timepicker({});
-        });
-        // mobile
-        $(function() {
-            $("#mobile_pickDate").datepicker();
-        });
-        $(document).ready(function() {
-            $('#mobile_pickTime').timepicker({});
-        });
-        $(function() {
-            $("#mobile_dropDate").datepicker();
-        });
-        $(document).ready(function() {
-            $('#mobile_dropTime').timepicker({});
-        });
+    });
+            $(function() {
+                $("#pickDate").datepicker();
+            });
+            $(document).ready(function() {
+                $('#pickTime').timepicker({});
+            });
+            $(function() {
+                $("#dropDate").datepicker();
+            });
+            $(document).ready(function() {
+                $('#dropTime').timepicker({});
+            });
+            // mobile
+            $(function() {
+                $("#mobile_pickDate").datepicker();
+            });
+            $(document).ready(function() {
+                $('#mobile_pickTime').timepicker({});
+            });
+            $(function() {
+                $("#mobile_dropDate").datepicker();
+            });
+            $(document).ready(function() {
+                $('#mobile_dropTime').timepicker({});
+            });
     </script>
 </body>
 

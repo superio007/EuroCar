@@ -152,6 +152,35 @@ details {
 .ui-timepicker-container{
     z-index: 9999 !important;
 }
+/* suggestion box  */
+.suggestion-box {
+    position: absolute; /* Absolute positioning to place the box directly below input */
+    top: 65px; /* Adjusted top position */
+    width: 434px; /* Fixed width */
+    right: 13px; /* Aligned right */
+    z-index: 1000; /* Ensure it appears above other elements */
+    background-color: white; /* White background */
+    border: 1px solid #ccc; /* Light gray border */
+    max-height: 350px; /* Limit the height to 200px */
+    overflow-y: auto; /* Enable vertical scrolling when necessary */
+    overflow-x: hidden; /* Disable horizontal scrolling */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    padding: 0; /* Remove padding inside the suggestion box */
+}
+
+.suggestion-item {
+    padding: 10px;
+    cursor: pointer;
+    white-space: nowrap; /* Prevent wrapping of text */
+    border-bottom: 1px solid #ddd; /* Light separator between items */
+    &:hover {
+        background-color: #f0f0f0; /* Highlight background on hover */
+    }
+    &:last-child {
+        border-bottom: none; /* Remove border from the last item */
+    }
+}
+
 @media screen and (max-width: 769px) {
     /* index */
     #hero h1{
@@ -172,4 +201,47 @@ details {
     /* #price_table_mobile .col{
         width: 0.1rem;
     } */
+     /* For mobile */
+    .suggestionBox-mobile {
+        position: absolute;
+        top: 451px;
+        width: 349px;
+        right: 31px;
+        z-index: 1000;
+        background-color: white;
+        border: 1px solid #ccc;
+        max-height: 200px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 0;
+    }
+
+    .drop-suggestionBox-mobile {
+        position: absolute;
+        top: 529px;
+        width: 349px;
+        right: 31px;
+        z-index: 1000;
+        background-color: white;
+        border: 1px solid #ccc;
+        max-height: 200px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 0;
+    }
+
+    .suggestion-item-mobile,.drop-suggestion-item-mobile {
+        padding: 10px;
+        cursor: pointer;
+        white-space: nowrap; /* Prevent wrapping of text */
+        border-bottom: 1px solid #ddd; /* Light separator between items */
+        &:hover{
+            background-color: #f0f0f0;
+        }
+        &:last-child{
+            border-bottom: none;
+        }
+    }
 }
