@@ -306,10 +306,10 @@ require 'vendor/autoload.php';
                     <div class="d-flex justify-content-between ">
                         <p style="font-size:x-large; font-weight: 700;">Total Rental</p>
                         <p style="font-size:x-large; font-weight: 700;"><?php echo number_format($currency, 2); ?></p>
-                    </div>
                 </div>
             </div>
         </div>
+    </div>
     </div>
     <?php include 'footer.php' ?>
 </body>
