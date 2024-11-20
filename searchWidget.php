@@ -1,5 +1,8 @@
 <?php
-session_start();
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -54,6 +57,7 @@ session_start();
         $pickTime = $_POST['pickTime'];
         $dropDate = $_POST['dropDate'];  // e.g., "09/20/2024"
         $dropTime = $_POST['dropTime'];
+        $groupName = $_POST['groupName'];
         // Convert the dates to the desired format
         $formatpickDate = convertDate($pickDate);
         $formatdropDate = convertDate($dropDate);
@@ -106,6 +110,14 @@ session_start();
             "pickTime" => $pickTime,
             "dropTime" => $dropTime
         ];
+        $dataarray = [
+            'groupName' => $groupName,
+            'pickUpDateTime' => $pickUpDateTime,
+            'dropOffDateTime' => $dropOffDateTime,
+            'pickLocation' => $pickup,
+            'dropLocation' => $dropOff,
+        ];
+        $_SESSION['dataarray'] = $dataarray;
         $_SESSION['responseEuro'] = $responseEuro;
         $_SESSION['requiredeuroBooking'] = $requiredeuroBooking;
         echo "<script>window.location.href='results.php'</script>";
@@ -133,9 +145,11 @@ session_start();
                     <label for="pick">PICK UP LOCATION:</label>
                     <input type="text" name="pick" id="pickInput" class="form-control" placeholder="Enter city or airport code">
                     <input type="hidden" name="pickCityCode" id="pickCityCode"> <!-- Hidden input to store pick-up city code -->
-
+                    <input type="hidden" name="groupName" id="groupName">
                     <!-- Suggestion box -->
-                    <div id="suggestionBox" class="suggestion-box bg-white border rounded position-absolute" style="display:none;"></div>
+                    <div id="suggestionBox" class="suggestion-box bg-white border rounded position-absolute">
+
+                    </div>
                 </div>
                 <div class="col-6 d-grid position-relative">
                     <label for="drop">DROP OFF LOCATION:</label>
@@ -186,6 +200,7 @@ session_start();
                     <label for="mobile_pick">Pick Up Location:</label>
                     <input type="text" name="pick" id="mobile_pick" list="airport_name" placeholder="CITY OR AIRPORT CODE" autocomplete="off" class="form-control">
                     <input type="hidden" name="pickCityCode" id="mobile_pickCityCode">
+                    <input type="hidden" name="groupName" id="groupName">
                     <div id="suggestionBox-mobile" class="suggestionBox-mobile bg-white border rounded position-absolute" style="display:none;"></div>
                 </div>
                 <div class="col-md-6 mb-3">
@@ -221,57 +236,33 @@ session_start();
         </form>
     </div>
     <script>
-       $(document).ready(function() {
-        // Event listener for input on pick-up location input field
-        $('#pickInput').on('input', function() {
-            var inputValue = $(this).val().trim();
-
-            if (inputValue.length >= 3) {
+        // Function to handle the autocomplete logic
+        $(document).ready(function() {
+            $('#pickInput').on('click', function() {
+                // Make AJAX request when the input is clicked
                 $.ajax({
                     url: 'getStations.php',
                     method: 'POST',
-                    data: { searchTerm: inputValue },
                     success: function(response) {
-                        var stations = JSON.parse(response); // Parse the JSON response
+                        var stations = JSON.parse(response);
+                        console.log(stations);
+                        $('#suggestionBox').empty().show(); // Clear existing suggestions and show the box
 
-                        // Clear the suggestion box
-                        $('#suggestionBox').empty().show();
-
-                        if (stations.message) {
-                            // Show "No data found" message
+                        // Check if there are valid stations
+                        if (stations.length === 0) {
                             $('#suggestionBox').append(`
-                                <div class="no-data-message" style="padding: 10px; color: red;">
-                                    ${stations.message}
-                                </div>
-                            `);
+                    <div class="no-data-message" style="padding: 10px; color: red;">
+                        No stations found.
+                    </div>
+                `);
                         } else {
-                            // Group stations by city
-                            var groupedStations = stations.reduce(function(grouped, station) {
-                                var city = station.city;
-                                if (!grouped[city]) {
-                                    grouped[city] = [];
-                                }
-                                grouped[city].push(station);
-                                return grouped;
-                            }, {});
-
-                            // Loop through the grouped stations and append them to the suggestion box
-                            Object.keys(groupedStations).forEach(function(city) {
-                                var cityStations = groupedStations[city];
-
+                            // Iterate through stations and add them to the suggestion box
+                            stations.forEach(function(station) {
                                 $('#suggestionBox').append(`
-                                    <div class="city-header" style="font-weight: bold; padding: 10px 5px; background-color: #f5f5f5;">
-                                        ${city} (${cityStations.length} Matches)
-                                    </div>
-                                `);
-
-                                cityStations.forEach(function(station) {
-                                    $('#suggestionBox').append(`
-                                        <div class="suggestion-item" data-code="${station.stationCode}">
-                                            ${station.stationName}
-                                        </div>
-                                    `);
-                                });
+                        <div class="suggestion-item" data-code="${station.stationCode}">
+                            ${station.stationName} (${station.group}) All locations
+                        </div>
+                    `);
                             });
 
                             // Handle click on suggestion items
@@ -290,36 +281,37 @@ session_start();
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
                         console.error('Error during AJAX request:', textStatus, errorThrown);
-                    }
+                    },
                 });
-            } else {
-                $('#suggestionBox').hide();
-            }
-        });
-        // Event listener for input on pick-up location input field for mobile
-        $('#mobile_pick').on('input', function() {
-            var inputValue = $(this).val().trim();
+            });
 
-            if (inputValue.length >= 3) {
+
+            $('#pickInput').on('click', function() {
+                if ($('#suggestionBox').children().length > 0) {
+                    $('#suggestionBox').show();
+                }
+            });
+
+            $('#mobile_pick').on('focus', function() {
+                // Make AJAX request when the input is focused
                 $.ajax({
                     url: 'getStations.php',
                     method: 'POST',
-                    data: { searchTerm: inputValue },
                     success: function(response) {
                         var stations = JSON.parse(response);
+                        $('#suggestionBox-mobile').empty().show(); // Clear existing suggestions and show the box
 
-                        // Clear the mobile suggestion box
-                        $('#suggestionBox-mobile').empty().show();
-
-                        if (stations.message) {
+                        // Check if there are valid stations
+                        if (stations.length === 0) {
                             $('#suggestionBox-mobile').append(`
-                                <div class="no-data-message" style="padding: 10px; color: red;">
-                                    ${stations.message}
-                                </div>
-                            `);
+                    <div class="no-data-message" style="padding: 10px; color: red;">
+                        No stations found.
+                    </div>
+                `);
                         } else {
+                            // Group stations by city (group)
                             var groupedStations = stations.reduce(function(grouped, station) {
-                                var city = station.city;
+                                var city = station.group;
                                 if (!grouped[city]) {
                                     grouped[city] = [];
                                 }
@@ -327,25 +319,19 @@ session_start();
                                 return grouped;
                             }, {});
 
+                            // Populate the suggestion box
                             Object.keys(groupedStations).forEach(function(city) {
                                 var cityStations = groupedStations[city];
-
-                                $('#suggestionBox-mobile').append(`
-                                    <div class="city-header" style="font-weight: bold; padding: 10px 5px; background-color: #f5f5f5;">
-                                        ${city} (${cityStations.length} Matches)
-                                    </div>
-                                `);
-
                                 cityStations.forEach(function(station) {
                                     $('#suggestionBox-mobile').append(`
-                                        <div class="suggestion-item-mobile" data-code="${station.stationCode}">
-                                            ${station.stationName}
-                                        </div>
-                                    `);
+                            <div class="suggestion-item-mobile" data-code="${station.stationCode}">
+                                ${station.stationName} All locations
+                            </div>
+                        `);
                                 });
                             });
 
-                            // Handle click on mobile suggestion items
+                            // Handle click on suggestion items
                             $('.suggestion-item-mobile').on('click', function() {
                                 var stationName = $(this).text().trim();
                                 var stationCode = $(this).data('code');
@@ -361,35 +347,37 @@ session_start();
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
                         console.error('Error during AJAX request:', textStatus, errorThrown);
-                    }
+                    },
                 });
-            } else {
-                $('#suggestionBox-mobile').hide();
-            }
-        });
-        // Event listener for drop-off location
-        $('#dropInput').on('input', function() {
-            var inputValue = $(this).val().trim();
+            });
 
-            if (inputValue.length >= 3) {
+
+            $('#mobile_pick').on('click', function() {
+                if ($('#suggestionBox-mobile').children().length > 0) {
+                    $('#suggestionBox-mobile').show();
+                }
+            });
+
+            $('#dropInput').on('focus', function() {
+                // Make AJAX request when the input field is focused
                 $.ajax({
                     url: 'getStations.php',
                     method: 'POST',
-                    data: { searchTerm: inputValue },
                     success: function(response) {
                         var stations = JSON.parse(response);
+                        $('#dropSuggestionBox').empty().show(); // Clear existing suggestions and show the box
 
-                        $('#dropSuggestionBox').empty().show();
-
-                        if (stations.message) {
+                        // Check if there are valid stations
+                        if (stations.length === 0) {
                             $('#dropSuggestionBox').append(`
-                                <div class="no-data-message" style="padding: 10px; color: red;">
-                                    ${stations.message}
-                                </div>
-                            `);
+                    <div class="no-data-message" style="padding: 10px; color: red;">
+                        No stations found.
+                    </div>
+                `);
                         } else {
+                            // Group stations by city (group)
                             var groupedStations = stations.reduce(function(grouped, station) {
-                                var city = station.city;
+                                var city = station.group;
                                 if (!grouped[city]) {
                                     grouped[city] = [];
                                 }
@@ -397,21 +385,15 @@ session_start();
                                 return grouped;
                             }, {});
 
+                            // Populate the suggestion box
                             Object.keys(groupedStations).forEach(function(city) {
                                 var cityStations = groupedStations[city];
-
-                                $('#dropSuggestionBox').append(`
-                                    <div class="city-header" style="font-weight: bold; padding: 10px 5px; background-color: #f5f5f5;">
-                                        ${city} (${cityStations.length} Matches)
-                                    </div>
-                                `);
-
                                 cityStations.forEach(function(station) {
                                     $('#dropSuggestionBox').append(`
-                                        <div class="suggestion-item" data-code="${station.stationCode}">
-                                            ${station.stationName}
-                                        </div>
-                                    `);
+                            <div class="suggestion-item" data-code="${station.stationCode}">
+                                ${station.stationName} (${station.group})
+                            </div>
+                        `);
                                 });
                             });
 
@@ -429,35 +411,36 @@ session_start();
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
                         console.error('Error during AJAX request:', textStatus, errorThrown);
-                    }
+                    },
                 });
-            } else {
-                $('#dropSuggestionBox').hide();
-            }
-        });
-        // Similar logic for mobile drop-off location
-        $('#mobile_drop').on('input', function() {
-            var inputValue = $(this).val().trim();
+            });
 
-            if (inputValue.length >= 3) {
+
+            $('#dropInput').on('click', function() {
+                if ($('#dropSuggestionBox').children().length > 0) {
+                    $('#dropSuggestionBox').show();
+                }
+            });
+            $('#mobile_drop').on('focus', function() {
+                // Make AJAX request when the input field is focused
                 $.ajax({
                     url: 'getStations.php',
                     method: 'POST',
-                    data: { searchTerm: inputValue },
                     success: function(response) {
                         var stations = JSON.parse(response);
+                        $('#drop-suggestionBox-mobile').empty().show(); // Clear existing suggestions and show the box
 
-                        $('#drop-suggestionBox-mobile').empty().show();
-
-                        if (stations.message) {
+                        // Check if there are valid stations
+                        if (stations.length === 0) {
                             $('#drop-suggestionBox-mobile').append(`
-                                <div class="no-data-message" style="padding: 10px; color: red;">
-                                    ${stations.message}
-                                </div>
-                            `);
+                    <div class="no-data-message" style="padding: 10px; color: red;">
+                        No stations found.
+                    </div>
+                `);
                         } else {
+                            // Group stations by city (group)
                             var groupedStations = stations.reduce(function(grouped, station) {
-                                var city = station.city;
+                                var city = station.group;
                                 if (!grouped[city]) {
                                     grouped[city] = [];
                                 }
@@ -465,24 +448,19 @@ session_start();
                                 return grouped;
                             }, {});
 
+                            // Populate the suggestion box
                             Object.keys(groupedStations).forEach(function(city) {
                                 var cityStations = groupedStations[city];
-
-                                $('#drop-suggestionBox-mobile').append(`
-                                    <div class="city-header" style="font-weight: bold; padding: 10px 5px; background-color: #f5f5f5;">
-                                        ${city} (${cityStations.length} Matches)
-                                    </div>
-                                `);
-
                                 cityStations.forEach(function(station) {
                                     $('#drop-suggestionBox-mobile').append(`
-                                        <div class="drop-suggestion-item-mobile" data-code="${station.stationCode}">
-                                            ${station.stationName}
-                                        </div>
-                                    `);
+                            <div class="drop-suggestion-item-mobile" data-code="${station.stationCode}">
+                                ${station.stationName} (${station.group})
+                            </div>
+                        `);
                                 });
                             });
 
+                            // Handle click on suggestion items
                             $('.drop-suggestion-item-mobile').on('click', function() {
                                 var stationName = $(this).text().trim();
                                 var stationCode = $(this).data('code');
@@ -496,38 +474,44 @@ session_start();
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
                         console.error('Error during AJAX request:', textStatus, errorThrown);
-                    }
+                    },
                 });
-            } else {
-                $('#drop-suggestionBox-mobile').hide();
-            }
+            });
+
+            $('#mobile_drop').on('click', function() {
+                if ($('#drop-suggestionBox-mobile').children().length > 0) {
+                    $('#drop-suggestionBox-mobile').show();
+                }
+            });
+
+
         });
-    });
-            $(function() {
-                $("#pickDate").datepicker();
-            });
-            $(document).ready(function() {
-                $('#pickTime').timepicker({});
-            });
-            $(function() {
-                $("#dropDate").datepicker();
-            });
-            $(document).ready(function() {
-                $('#dropTime').timepicker({});
-            });
-            // mobile
-            $(function() {
-                $("#mobile_pickDate").datepicker();
-            });
-            $(document).ready(function() {
-                $('#mobile_pickTime').timepicker({});
-            });
-            $(function() {
-                $("#mobile_dropDate").datepicker();
-            });
-            $(document).ready(function() {
-                $('#mobile_dropTime').timepicker({});
-            });
+
+        $(function() {
+            $("#pickDate").datepicker();
+        });
+        $(document).ready(function() {
+            $('#pickTime').timepicker({});
+        });
+        $(function() {
+            $("#dropDate").datepicker();
+        });
+        $(document).ready(function() {
+            $('#dropTime').timepicker({});
+        });
+        // mobile
+        $(function() {
+            $("#mobile_pickDate").datepicker();
+        });
+        $(document).ready(function() {
+            $('#mobile_pickTime').timepicker({});
+        });
+        $(function() {
+            $("#mobile_dropDate").datepicker();
+        });
+        $(document).ready(function() {
+            $('#mobile_dropTime').timepicker({});
+        });
     </script>
 </body>
 

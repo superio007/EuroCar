@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+  <serviceResponse returnCode="OK">
+    <warningList>
+      <warning warningCode="2012" warningDesc="XRS.reservation.additionalFee can apply" />
+    </warningList>
+    <serviceContext>
+      <localisation active="true">
+        <language code="en_AU" />
+      </localisation>
+    </serviceContext>
+    <reservation carCategory="ICAR" carCategoryAirCond="Y" carCategoryAutomatic="Y" carCategoryBaggageQuantity="3" carCategoryCO2Quantity="175" carCategoryDoors="4" carCategoryModelHeight="1.51" carCategoryModelLength="4.45" carCategoryModelWidth="1.84" carCategoryName="INTERMEDIATE,2/4 DOORS,AUTO,A/C" carCategoryPowerHP="305" carCategoryPowerKW="228" carCategorySample="CUPRA FORMENTOR" carCategorySeats="5" countryOfReservation="AU" duration="2" fuelTypeCode="UL" productCode="RT1PD1AU" productFamily="DYTK" productLevel="2800" productVersion="35" rateId="81f4785f4e5512fd8b11a9cfb86d2df26029d87f53996b14fccdba79a9d17bb1" resTimeStamp="202411040143" reservationDate="20241104" reservationTime="0143" statusCode="S" type="P" xrsPartnerCallerID="Global Travel Xper">
+      <links>
+        <link id="carvisual" value="https://static.europcar.com/carvisuals/partners/835x557/ICAR_AU.png" />
+      </links>
+      <checkin date="20241106" stationID="BNET01" time="1900" />
+      <checkout date="20241105" stationID="BNET01" time="0900" />
+      <quote IncludedKmUnit="K" areTaxesIncluded="N" basePrice="88.20" baseType="D" bookingCurrencyOfTotalRateEstimate="AUD" currency="AUD" exchangeRate="1" includedKm="99999" includedKmType="R" isAuthorizedForPublicUse="Y" isPrepaid="N" isPriceSecret="N" rentingCurrencyOfTotalRateEstimate="AUD" totalRateEstimate="216.26" totalRateEstimateInBookingCurrency="216.26" totalRateEstimateInRentingCurrency="216.26" xrsBasePrice="146.74" xrsBasePriceInBookingCurrency="146.74">
+        <insuranceList>
+          <insurance bkExcessWithPOM="0.00" code="RSA" descr="Roadside Assistance" excessWithPOM="0.00" price="8.00" priceInBookingCurrency="8.00" rentalPriceAI="23.32" rentalPriceInBookingCurrencyAI="23.32" type="O" />
+          <insurance bkExcessWithPOM="0.00" code="WWI" descr="Covers damage to windscreen, lights, and tyres for normal use (WWI)" excessWithPOM="0.00" price="15.00" priceInBookingCurrency="15.00" rentalPriceAI="43.71" rentalPriceInBookingCurrencyAI="43.71" type="O" />
+          <insurance bkExcessWithPOM="1650.00" code="MEDIUM" descr="Medium Protection package" excessWithPOM="1650.00" price="42.00" priceInBookingCurrency="42.00" rentalPriceAI="122.41" rentalPriceInBookingCurrencyAI="122.41" type="O" />
+          <insurance bkExcessWithPOM="0.01" code="PREMIUM" descr="Premium Protection package more 26 Years old" excessWithPOM="0.01" price="51.00" priceInBookingCurrency="51.00" rentalPriceAI="148.64" rentalPriceInBookingCurrencyAI="148.64" type="O" />
+          <insurance bkExcessWithPOM="0.00" code="LAF" descr="Road Tax &amp; License Fees (LAF)" excessWithPOM="0.00" price="7.50" priceInBookingCurrency="7.50" rentalPriceAI="21.87" rentalPriceInBookingCurrencyAI="21.87" type="M" />
+          <insurance bkExcessWithPOM="5995.00" code="LDW" descr="Theft and Collision Damage Waiver (excess may apply) LDW" excessWithPOM="5995.00" price="0.00" priceInBookingCurrency="0.00" rentalPriceAI="0.00" rentalPriceInBookingCurrencyAI="0.00" type="I" />
+        </insuranceList>
+        <includeList>
+          <include code="5101" descr="Premium Location Surcharge" />
+          <include code="5100" descr="Administration Fee" />
+        </includeList>
+        <feeList>
+          <fee Used="N" code="VI" percentage="1.17" priceVATI="2.78" priceVATIInBookingCurrency="2.78" />
+          <fee Used="N" code="JCB" percentage="1.75" priceVATI="4.16" priceVATIInBookingCurrency="4.16" />
+          <fee Used="N" code="DF" percentage="0.95" priceVATI="2.26" priceVATIInBookingCurrency="2.26" />
+          <fee Used="N" code="DC" percentage="2.50" priceVATI="5.95" priceVATIInBookingCurrency="5.95" />
+          <fee Used="N" code="CA" percentage="0.95" priceVATI="2.26" priceVATIInBookingCurrency="2.26" />
+          <fee Used="N" code="AX" percentage="1.75" priceVATI="4.16" priceVATIInBookingCurrency="4.16" />
+        </feeList>
+        <taxList>
+          <tax taxCode="STD" taxRate="10.00" />
+        </taxList>
+      </quote>
+      <ageLimit maxAgeForCountry="99" minAgeForCategory="25" minAgeForCountry="21" minLicencePeriod="36 months" youngDriverAge="25" />
+    </reservation>
+    <driver addressCountry="AU" countryOfResidence="AU" />
+  </serviceResponse>
+</message>
+
