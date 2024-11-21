@@ -2,7 +2,7 @@
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-
+session_start();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -391,7 +391,7 @@ error_reporting(E_ALL);
                                 cityStations.forEach(function(station) {
                                     $('#dropSuggestionBox').append(`
                             <div class="suggestion-item" data-code="${station.stationCode}">
-                                ${station.stationName} (${station.group})
+                                ${station.stationName} (${station.group}) All locations
                             </div>
                         `);
                                 });
@@ -454,7 +454,7 @@ error_reporting(E_ALL);
                                 cityStations.forEach(function(station) {
                                     $('#drop-suggestionBox-mobile').append(`
                             <div class="drop-suggestion-item-mobile" data-code="${station.stationCode}">
-                                ${station.stationName} (${station.group})
+                                ${station.stationName} (${station.group}) All locations
                             </div>
                         `);
                                 });

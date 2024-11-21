@@ -1,5 +1,12 @@
+<?php
+session_start();
+if (!isset($_SESSION['jwtToken'])) {
+    echo "<script>window.location.href='login.php';</script>";
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,15 +16,16 @@
     <script src="https://kit.fontawesome.com/74e6741759.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    <?php include_once 'header.php';?>
+    <?php include_once 'header.php'; ?>
     <div id="hero" class="d-grid container-fluid-md justify-content-center" style="background: url(./images/39D0DD07-0B14-7EA4-AB3D00DD78758912_fullwidth.jpg); padding: 4rem 1rem; background-repeat: no-repeat;background-attachment: local;background-size: 100% 100%;">
         <div class="text-center text-white">
             <h1>SEARCH CAR HIRE, EURO-LEASING & MOTORHOMES</h1>
             <h5><i class="fa-solid fa-check " style="color: #ffffff;"></i> Flexibility <i class="fa-solid fa-check " style="color: #ffffff;"></i> 24,000 Locations <i class="fa-solid fa-check " style="color: #ffffff;"></i> Peace of mind <i class="fa-solid fa-check " style="color: #ffffff;"></i> Best in Price</h5>
         </div>
         <div>
-            <?php include_once 'searchWidget.php';?>
+            <?php include_once 'searchWidget.php'; ?>
         </div>
     </div>
     <!-- desktop version -->
@@ -132,6 +140,7 @@
             </div>
         </div>
     </div>
-    <?php include 'footer.php';?>
+    <?php include 'footer.php'; ?>
 </body>
+
 </html>

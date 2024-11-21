@@ -1,6 +1,67 @@
 body{
     background-color: #f4f7fa;
 }
+/*style */
+.suggestion-box {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    background-color: #fff;
+}
+
+.city-header {
+    font-weight: bold;
+    padding: 10px 5px;
+    background-color: #f5f5f5;
+}
+
+.suggestion-item {
+    padding: 10px;
+    border-bottom: 1px solid #e0e0e0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.suggestion-item i {
+    margin-right: 10px;
+    color: #007bff; /* Icon color */
+}
+
+.suggestion-item:hover {
+    background-color: #f0f8ff;
+}
+
+.no-data-message {
+    color: red;
+    padding: 10px;
+    text-align: center;
+}
+
+.table-responsive-x {
+    overflow-x: auto;
+    width: 100%;
+}
+
+.table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background-color: #fff;
+}
+
+.table th,
+.table td {
+    white-space: nowrap; /* Prevent wrapping */
+    min-width: 120px; /* Minimum width to avoid text squishing */
+}
+
+@media (max-width: 768px) {
+    .table-responsive-x {
+        -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    }
+}
+
 /* index */
 #hero h1{
     font-size: 2.4rem;
@@ -27,8 +88,8 @@ body{
         border:rgb(5, 121, 230) 1px solid;
     }
 }
-#dropSelect,#pickSelect {
-    padding: 0.3rem;
+#drop,#pick {
+    caret-color: rgb(5, 121, 230);
     &:hover{
         border:rgb(5, 121, 230) 1px solid;
     }
@@ -63,9 +124,14 @@ footer  a{
 
 /* results  */
 
+.loader {
+    animation: rotate 2s infinite;
+}
+@keyframes rotate {
+    0% {transform: rotate(360deg);}
+}
 /* Common width for all dropdowns */
 details {
-    width: 200px; /* Set equal width for all details */
     margin-right: 1rem; /* Add some spacing between dropdowns */
     position: relative;
     margin-bottom: 1rem;
@@ -180,7 +246,6 @@ details {
         border-bottom: none; /* Remove border from the last item */
     }
 }
-
 @media screen and (max-width: 769px) {
     /* index */
     #hero h1{
@@ -201,10 +266,9 @@ details {
     /* #price_table_mobile .col{
         width: 0.1rem;
     } */
-     /* For mobile */
     .suggestionBox-mobile {
         position: absolute;
-        top: 451px;
+        top: 548px;
         width: 349px;
         right: 31px;
         z-index: 1000;
@@ -219,7 +283,7 @@ details {
 
     .drop-suggestionBox-mobile {
         position: absolute;
-        top: 529px;
+        top: 627px;
         width: 349px;
         right: 31px;
         z-index: 1000;

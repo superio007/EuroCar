@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 header('Content-Type: application/json');
 
 // Enable error reporting during development
@@ -18,8 +20,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $dropDate = $data['dropOffDate'];
         $pickTime = $data['pickUpTime'];
         $droptime = $data['dropOffTime'];
+        
+        
 
-        function getQuote($carCategory, $pickEuro, $dropEuro, $pickDate, $dropDate,$pickTime,$dropTime) {
+        function getQuote($carCategory, $pickEuro, $dropEuro, $pickDate, $dropDate, $pickTime, $dropTime)
+        {
             $xmlRequestEuro = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
                 <message>
                     <serviceRequest serviceCode=\"getQuote\">
@@ -59,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             return ['response' => $response];
         }
 
-        $response = getQuote($carCategory, $pickEuro, $dropEuro, $pickDate, $dropDate,$pickTime,$droptime);
+        $response = getQuote($carCategory, $pickEuro, $dropEuro, $pickDate, $dropDate, $pickTime, $droptime);
         $rate = 0;
         $currency = 'USD';
 
@@ -92,4 +97,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 } else {
     echo json_encode(['error' => 'Invalid request method']);
 }
-?>

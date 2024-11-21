@@ -1,3 +1,12 @@
+<?php
+session_start();
+$jwtToken = $_SESSION['jwtToken'];
+include_once 'jwt.php';
+$decodedArray = decodeJWT($jwtToken);
+// var_dump($decodedArray);
+$AccessId = $decodedArray['data']['AccessId'];
+$_SESSION['AccessId'] = $AccessId;
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -19,10 +28,9 @@
             </div>
             <div class="d-flex align-items-center gap-3">
                 <i class="fa-solid fa-user fa-xl" style="color: #000000;"></i>
-                <p class="m-0">Kiran Dhoke</p>
-                <!-- <a href="admin.php?dashboard&accessId=<?php //echo $decodedArray['data']['AccessId']; ?>" style="text-decoration: none;color:black;font-weight:400;">
-                    < <p class="m-0"><?php //echo $decodedArray['data']['Name']; ?></p> 
-                </a> -->
+                <a href="admin.php?dashboard&accessId=<?php echo $decodedArray['data']['AccessId']; ?>" style="text-decoration: none;color:black;font-weight:400;">
+                    <p class="m-0"><?php echo $decodedArray['data']['Name']; ?></p>
+                </a>
             </div>
         </div>
     </nav>

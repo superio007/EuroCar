@@ -1,5 +1,8 @@
 <?php
 session_start();
+if (!isset($_SESSION['jwtToken'])) {
+    echo "<script>window.location.href='login.php';</script>";
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -865,7 +868,7 @@ session_start();
 
         document.querySelector('.loader_div').classList.replace("d-grid", "d-none");
         document.querySelector('.results_div').classList.remove('d-none');
-        
+
         document.querySelectorAll('.showLocation').forEach(function(e) {
             e.addEventListener('click', function(event) {
                 console.log(event.target.id);
@@ -1005,6 +1008,30 @@ session_start();
 
                 console.log("Pickup Data:", pickupData);
                 console.log("Dropoff Data:", dropoffData);
+                let pickup = pickupData['euro'];
+                let dropOff = dropoffData['euro'];
+                if (pickup && dropOff) {
+                    let data = {
+                        "pickup": pickup, // Ensure consistent key name
+                        "dropOff": dropOff,
+                        "pickUpTime": infoObject.pickUpTimeEuro,
+                        "dropOffTime": infoObject.dropOffTimeEuro,
+                    };
+                    fetch("updateSession.php", {
+                            method: "POST",
+                            headers: { // Correct header casing
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify(data)
+                        })
+                        .then(response => response.json())
+                        .then(result => {
+                            console.log("Success", result);
+                        })
+                        .catch(error => {
+                            console.log("Error", error);
+                        });
+                }
             }
 
             if (pickupSelected && dropoffSelected) {
