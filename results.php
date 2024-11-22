@@ -290,14 +290,14 @@ if (!isset($_SESSION['jwtToken'])) {
             height: 27rem;
         }
 
-        #dropoffLocationName_div,
-        #pickupLocationName_div {
+        .dropoffLocationName_div,
+        .pickupLocationName_div {
             cursor: pointer;
             overflow-y: scroll;
             height: 22rem;
         }
 
-        #locationName {
+        .locationName {
             padding: 10px;
             border: 1px solid #d4d4d4;
         }
@@ -716,53 +716,56 @@ if (!isset($_SESSION['jwtToken'])) {
                                             </div>
                                         </div>';
                             echo '
-                                            <div class="row show d-none" id="showQuote_' . $dataSize . '">
-                                                <!-- Pick Up Location -->
-                                                <div class="col-4">
-                                                    <div>
-                                                        <p class="text-center mt-3">Pick Up Location</p>
-                                                    </div>
-                                                    <div id="pickupLocationName_div">';
+                                        <div class="row show d-none" id="showQuote_' . $dataSize . '">
+                                            <!-- Pick Up Location -->
+                                            <div class="col-4">
+                                                <div>
+                                                    <p class="text-center mt-3">Pick Up Location</p>
+                                                </div>
+                                                <div class="pickupLocationName_div" id="pickupLocationName_div_' . $dataSize . '">'; // Unique ID for pickup location
                             foreach ($locations as $row) {
                                 echo '
-                                                        <p id="locationName" data-euro="' . htmlspecialchars($row['stationCode'], ENT_QUOTES) . '">' . htmlspecialchars($row['cityaddress'], ENT_QUOTES) . '</p>';
+                                                    <p class="locationName" id="locationName_' . $dataSize . '" data-euro="' . htmlspecialchars($row['stationCode'], ENT_QUOTES) . '">' .
+                                    htmlspecialchars($row['cityaddress'], ENT_QUOTES) . '</p>'; // Unique ID for each location name
                             }
                             echo '
-                                                    </div>
                                                 </div>
-                                                
-                                                <!-- Drop Off Location -->
-                                                <div class="col-4">
-                                                    <div>
-                                                        <p class="text-center mt-3">Drop Off Location</p>
-                                                    </div>
-                                                    <div id="dropoffLocationName_div">';
+                                            </div>
+                                            
+                                            <!-- Drop Off Location -->
+                                            <div class="col-4">
+                                                <div>
+                                                    <p class="text-center mt-3">Drop Off Location</p>
+                                                </div>
+                                                <div class="dropoffLocationName_div" id="dropoffLocationName_div_' . $dataSize . '">'; // Unique ID for drop-off location
                             foreach ($locations as $row1) {
                                 echo '
-                                                        <p id="locationName" data-euro="' . htmlspecialchars($row1['stationCode'], ENT_QUOTES) . '">' . htmlspecialchars($row1['cityaddress'], ENT_QUOTES) . '</p>';
+                                                    <p class="locationName" id="locationName_' . $dataSize . '" data-euro="' . htmlspecialchars($row1['stationCode'], ENT_QUOTES) . '">' .
+                                    htmlspecialchars($row1['cityaddress'], ENT_QUOTES) . '</p>'; // Unique ID for each location name
                             }
                             echo '
-                                                    </div>
                                                 </div>
-
-                                                <!-- Payment Information -->
-                                                <div class="col-4">
+                                            </div>
+                                        
+                                            <!-- Payment Information -->
+                                            <div class="col-4">
+                                                <div>
+                                                    <p class="text-center mt-3">Payment Information</p>
+                                                </div>
+                                                <div class="res_pay" id="Pay_div_' . $dataSize . '">'; // Unique ID for payment div
+                            echo '
                                                     <div>
-                                                        <p class="text-center mt-3">Payment Information</p>
-                                                    </div>
-                                                    <div class="res_pay" id="Pay_div">
-                                                        <div>
-                                                            <p>Insurances Package</p>
-                                                            <p>Rates starting at ...</p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="res_pay">
-                                                        <div class="d-flex">
-                                                            <a href="book.php?reference=' . urlencode($reference) . '&vdNo=Euro" class="btn btn-primary">BOOK NOW</a>
-                                                        </div>
+                                                        <p>Insurances Package</p>
+                                                        <p>Rates starting at ...</p>
                                                     </div>
                                                 </div>
-                                            </div>';
+                                                <div class="res_pay">
+                                                    <div class="d-flex">
+                                                        <a href="book.php?reference=' . urlencode($reference) . '&vdNo=Euro" class="btn btn-primary">BOOK NOW</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>';
                         }
                     } else {
                         echo '';
@@ -984,24 +987,31 @@ if (!isset($_SESSION['jwtToken'])) {
             });
         });
 
-        function handleSelection(event, type) {
-            const targetDiv = type === 'pickup' ? '#pickupLocationName_div' : '#dropoffLocationName_div';
+        function handleSelection(event, type,carCategory) {
+            const targetDiv = type === 'pickup' ? `#pickupLocationName_div_${carCategory}` : `#dropoffLocationName_div_${carCategory}`;
             const selectedData = {
                 hertz: event.target.getAttribute('data-hertz'),
                 euro: event.target.getAttribute('data-euro'),
             };
 
-            console.log(`${type.charAt(0).toUpperCase() + type.slice(1)} location: Hertz - ${selectedData.hertz}, Euro - ${selectedData.euro}`);
+            console.log(`Handling ${type} location selection`, event.target);
+            console.log(`Selected ${type} location: Hertz - ${selectedData.hertz}, Euro - ${selectedData.euro}`);
 
             if (selectedData.hertz || selectedData.euro) {
                 const prevSelected = document.querySelector(`${targetDiv} .selected`);
-                if (prevSelected) prevSelected.classList.remove('selected');
+                if (prevSelected) {
+                    console.log(`Removing previous selection for ${type}`);
+                    prevSelected.classList.remove('selected');
+                }
+                console.log(`Adding new selection for ${type}`);
                 event.target.classList.add('selected');
 
                 if (type === 'pickup') {
+                    console.log("Updating pickup data");
                     pickupData = selectedData;
                     pickupSelected = true;
                 } else {
+                    console.log("Updating dropoff data");
                     dropoffData = selectedData;
                     dropoffSelected = true;
                 }
@@ -1011,6 +1021,7 @@ if (!isset($_SESSION['jwtToken'])) {
                 let pickup = pickupData['euro'];
                 let dropOff = dropoffData['euro'];
                 if (pickup && dropOff) {
+                    console.log("Updating session variables");
                     let data = {
                         "pickup": pickup, // Ensure consistent key name
                         "dropOff": dropOff,
@@ -1035,23 +1046,29 @@ if (!isset($_SESSION['jwtToken'])) {
             }
 
             if (pickupSelected && dropoffSelected) {
+                console.log("Calling getQuote");
                 callGetQuote(); // Call function after selection
             }
         }
 
-        document.getElementById('pickupLocationName_div').addEventListener('click', function(event) {
-            if (event.target && event.target.matches('#locationName')) {
-                handleSelection(event, 'pickup');
-            }
+        // Check if elements exist before adding event listeners
+        console.log(`Adding event listeners for ${carCategory}`);
+        document.querySelectorAll(`#pickupLocationName_div_${carCategory} .locationName`).forEach((element) => {
+            console.log(`Adding event listener for pickup location ${element.textContent}`);
+            element.addEventListener('click', (event) => {
+                console.log(`Handling pickup location selection for ${carCategory}`);
+                handleSelection(event, 'pickup',carCategory);
+            });
         });
 
-        document.getElementById('dropoffLocationName_div').addEventListener('click', function(event) {
-            if (event.target && event.target.matches('#locationName')) {
-                handleSelection(event, 'dropoff');
-            }
+        document.querySelectorAll(`#dropoffLocationName_div_${carCategory} .locationName`).forEach((element) => {
+            console.log(`Adding event listener for dropoff location ${element.textContent}`);
+            element.addEventListener('click', (event) => {
+                console.log(`Handling dropoff location selection for ${carCategory}`);
+                handleSelection(event, 'dropoff',carCategory);
+            });
         });
 
-        Document.getElementById
 
         function callGetQuote() {
             console.log("Calling getQuote with:");
