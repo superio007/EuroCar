@@ -143,7 +143,7 @@ session_start();
             <div class="row">
                 <div class="col-6 d-grid position-relative">
                     <label for="pick">PICK UP LOCATION:</label>
-                    <input type="text" name="pick" id="pickInput" class="form-control" placeholder="Enter city or airport code">
+                    <input type="text" name="pick" id="pickInput" class="form-control" autocomplete="off" placeholder="Enter city or airport code">
                     <input type="hidden" name="pickCityCode" id="pickCityCode"> <!-- Hidden input to store pick-up city code -->
                     <input type="hidden" name="groupName" id="groupName">
                     <!-- Suggestion box -->
@@ -153,7 +153,7 @@ session_start();
                 </div>
                 <div class="col-6 d-grid position-relative">
                     <label for="drop">DROP OFF LOCATION:</label>
-                    <input type="text" name="drop" id="dropInput" class="form-control" placeholder="Enter city or airport code">
+                    <input type="text" name="drop" id="dropInput" class="form-control" autocomplete="off" placeholder="Enter city or airport code">
                     <input type="hidden" name="dropCityCode" id="dropCityCode"> <!-- Hidden input to store drop-off city code -->
 
                     <!-- Suggestion box for drop-off locations -->

@@ -24,6 +24,54 @@ if (!isset($_SESSION['jwtToken'])) {
     $dataArray = $_SESSION['dataarray'];
     // var_dump($dataArray);
     $requiredeuroBooking = $_SESSION['requiredeuroBooking'];
+    $_SESSION['storedResponse'] = $requiredeuroBooking;
+    $storedResponse = $_SESSION['storedResponse'];
+    if ($requiredeuroBooking['pickup'] != $storedResponse['pickup']  || $requiredeuroBooking['dropOff'] != $storedResponse['dropOff']) {
+        $xmlRequestEuro = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+        <message>
+        <serviceRequest serviceCode=\"getCarCategories\">
+            <serviceParameters>
+            <reservation>
+                <checkout stationID=\"$pickup\" date=\"$formatpickDate\"/>
+                <checkin stationID=\"$dropOff\" date=\"$formatdropDate\"/>
+            </reservation>
+            </serviceParameters>
+        </serviceRequest>
+        </message>
+        ";
+        // Initialize cURL session
+        $ch = curl_init();
+
+        // Set cURL options
+        curl_setopt($ch, CURLOPT_URL, 'https://applications-ptn.europcar.com/xrs/resxml');
+        curl_setopt($ch, CURLOPT_POST, 1);
+
+        // URL-encode the parameters (XML Request, callerCode, and password)
+        $postFields = http_build_query([
+            'XML-Request' => $xmlRequestEuro,
+            'callerCode' => '1132097',
+            'password' => '02092024',
+        ]);
+
+        // Set the POST fields and headers
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/x-www-form-urlencoded',
+            'Accept: text/xml'
+        ]);
+
+        // Execute the cURL request
+        $responseeuroNew = curl_exec($ch);
+        // Check for errors
+        if (curl_errno($ch)) {
+            echo 'cURL error: ' . curl_error($ch);
+        } else {
+            echo "<script>alert('Data Updated')</script>";
+            $responseEuro = $responseeuroNew;
+        }
+    } else {
+    }
     // var_dump($requiredeuroBooking);
     if (!empty($_SESSION['responseEuro'])) {
         $xmlresEuro = new SimpleXMLElement($_SESSION['responseEuro']);
@@ -752,11 +800,13 @@ if (!isset($_SESSION['jwtToken'])) {
                                                 <div>
                                                     <p class="text-center mt-3">Payment Information</p>
                                                 </div>
-                                                <div class="res_pay" id="Pay_div_' . $dataSize . '">'; // Unique ID for payment div
+                                                <div class="res_pay">'; // Unique ID for payment div
                             echo '
                                                     <div>
                                                         <p>Insurances Package</p>
                                                         <p>Rates starting at ...</p>
+                                                    </div>
+                                                    <div id="Pay_div_' . $dataSize . '">
                                                     </div>
                                                 </div>
                                                 <div class="res_pay">
@@ -974,7 +1024,7 @@ if (!isset($_SESSION['jwtToken'])) {
 
         document.querySelectorAll('.showLocation').forEach(function(e) {
             e.addEventListener('click', function(event) {
-                carCategory = event.target.id.replace("showLocation_", ""); // Assign to global variable
+                carCategory = event.target.id.replace("showLocation_", "");
                 console.log("Selected car category:", carCategory);
 
                 document.querySelectorAll('.show').forEach(function(el) {
@@ -984,34 +1034,29 @@ if (!isset($_SESSION['jwtToken'])) {
                         el.classList.add('d-none');
                     }
                 });
+
+                addLocationEventListeners(carCategory); // Add event listeners when a car category is selected
             });
         });
 
-        function handleSelection(event, type,carCategory) {
+        function handleSelection(event, type, carCategory) {
             const targetDiv = type === 'pickup' ? `#pickupLocationName_div_${carCategory}` : `#dropoffLocationName_div_${carCategory}`;
             const selectedData = {
                 hertz: event.target.getAttribute('data-hertz'),
                 euro: event.target.getAttribute('data-euro'),
             };
 
-            console.log(`Handling ${type} location selection`, event.target);
-            console.log(`Selected ${type} location: Hertz - ${selectedData.hertz}, Euro - ${selectedData.euro}`);
-
             if (selectedData.hertz || selectedData.euro) {
                 const prevSelected = document.querySelector(`${targetDiv} .selected`);
                 if (prevSelected) {
-                    console.log(`Removing previous selection for ${type}`);
                     prevSelected.classList.remove('selected');
                 }
-                console.log(`Adding new selection for ${type}`);
                 event.target.classList.add('selected');
 
                 if (type === 'pickup') {
-                    console.log("Updating pickup data");
                     pickupData = selectedData;
                     pickupSelected = true;
                 } else {
-                    console.log("Updating dropoff data");
                     dropoffData = selectedData;
                     dropoffSelected = true;
                 }
@@ -1053,22 +1098,20 @@ if (!isset($_SESSION['jwtToken'])) {
 
         // Check if elements exist before adding event listeners
         console.log(`Adding event listeners for ${carCategory}`);
-        document.querySelectorAll(`#pickupLocationName_div_${carCategory} .locationName`).forEach((element) => {
-            console.log(`Adding event listener for pickup location ${element.textContent}`);
-            element.addEventListener('click', (event) => {
-                console.log(`Handling pickup location selection for ${carCategory}`);
-                handleSelection(event, 'pickup',carCategory);
-            });
-        });
 
-        document.querySelectorAll(`#dropoffLocationName_div_${carCategory} .locationName`).forEach((element) => {
-            console.log(`Adding event listener for dropoff location ${element.textContent}`);
-            element.addEventListener('click', (event) => {
-                console.log(`Handling dropoff location selection for ${carCategory}`);
-                handleSelection(event, 'dropoff',carCategory);
+        function addLocationEventListeners(carCategory) {
+            document.querySelectorAll(`#pickupLocationName_div_${carCategory} .locationName`).forEach((element) => {
+                element.addEventListener('click', (event) => {
+                    handleSelection(event, 'pickup', carCategory);
+                });
             });
-        });
 
+            document.querySelectorAll(`#dropoffLocationName_div_${carCategory} .locationName`).forEach((element) => {
+                element.addEventListener('click', (event) => {
+                    handleSelection(event, 'dropoff', carCategory);
+                });
+            });
+        }
 
         function callGetQuote() {
             console.log("Calling getQuote with:");
@@ -1103,22 +1146,39 @@ if (!isset($_SESSION['jwtToken'])) {
                 .then(response => response.json())
                 .then(data => {
                     console.log("Quote Response:", data);
-                    if (data.quote && data.quote.rate && data.quote.currency) {
+
+                    const paymentInfoDiv = document.querySelector('#Pay_div_' + carCategory);
+
+                    if (data.quote) {
                         const rate = data.quote.rate;
                         const currency = data.quote.currency;
-                        const paymentInfoDiv = document.querySelector('#Pay_div');
-                        if (paymentInfoDiv) {
-                            paymentInfoDiv.innerHTML += `
-                                <div>
-                                    <p>Rental Rate: ${rate} ${currency}</p>
-                                </div>
-                            `;
+
+                        if (rate === 0 || currency === "USD") {
+                            // Handle case where rate is 0 or currency is USD
+                            paymentInfoDiv.innerHTML = `
+                <div>
+                    <p>Rental Rate: Not Available</p>
+                </div>
+            `;
+                        } else {
+                            // Handle valid rate and currency
+                            paymentInfoDiv.innerHTML = `
+                <div>
+                    <p>Rental Rate: ${rate} ${currency}</p>
+                </div>
+            `;
                         }
                     } else {
                         console.error('Quote details are missing in the response');
+                        paymentInfoDiv.innerHTML = `
+            <div>
+                <p>Rental Rate: Not Available</p>
+            </div>
+        `;
                     }
                 })
                 .catch(error => console.log('Error:', error));
+
         }
         // Hide all res_card elements initially
         document.querySelectorAll('.res_card').forEach(function(card) {
