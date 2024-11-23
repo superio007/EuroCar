@@ -6,13 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>City Selector with Price</title>
     <style>
-        .container {
+        .location_container {
             display: flex;
             flex-direction: column;
             gap: 15px;
         }
 
-        .row-container {
+        .location_row-container {
             display: flex;
             flex-direction: column;
             padding: 10px;
@@ -21,13 +21,13 @@
             background-color: #f9f9f9;
         }
 
-        .row {
+        .location_row {
             display: flex;
             justify-content: space-between;
             gap: 15px;
         }
 
-        .column {
+        .location_column {
             flex: 1;
         }
 
@@ -61,7 +61,6 @@
         .route-display {
             margin-top: 10px;
             font-size: 17px;
-            font-weight: bold;
             color: #333;
         }
 
@@ -73,92 +72,203 @@
 
         /* Responsive Design */
         @media (max-width: 769px) {
-            .row {
+            .location_row {
                 flex-direction: column;
             }
         }
     </style>
 </head>
+<?php
+session_start();
+$requiredeuroBooking = $_SESSION['requiredeuroBooking'];
+include 'dbconn.php';
+$cityName = "Mel";
+$sql = "SELECT * FROM `filter_locations_euro` WHERE groupName Like '$cityName%'";
+$result = $conn->query($sql);
+
+// Fetch all rows into an array
+$locations = $result->fetch_all(MYSQLI_ASSOC);
+function formatDateAndTime($dateTimeString)
+{
+    // Convert the date-time string to a DateTime object
+    $dateTime = new DateTime($dateTimeString);
+
+    // Format the date as YYYYMMDD
+    $formattedDate = $dateTime->format('Ymd');
+
+    // Format the time as HHMM (24-hour format)
+    $formattedTime = $dateTime->format('Hi');
+
+    // Return both values as an array
+    return [$formattedTime];
+}
+
+?>
 
 <body>
-    <div class="container">
-        <!-- Initial Row -->
-        <div class="row-container">
-            <div class="row">
-                <div class="column">
-                    <label for="pickup">Pickup</label>
-                    <select class="city-select pickup" name="pickup">
-                        <option value="">Select Pickup City</option>
-                        <option value="Sydney">Sydney</option>
-                        <option value="Melbourne">Melbourne</option>
-                        <option value="Brisbane">Brisbane</option>
-                        <option value="Perth">Perth</option>
-                        <option value="Adelaide">Adelaide</option>
-                    </select>
-                </div>
-                <div class="column">
-                    <label for="dropup">Dropup</label>
-                    <select class="city-select dropup" name="dropup">
-                        <option value="">Select Dropup City</option>
-                        <option value="Sydney">Sydney</option>
-                        <option value="Melbourne">Melbourne</option>
-                        <option value="Brisbane">Brisbane</option>
-                        <option value="Perth">Perth</option>
-                        <option value="Adelaide">Adelaide</option>
-                    </select>
-                </div>
-            </div>
-            <div class="route-display" style="display: none;">
-                Route: <span class="route"></span>
-            </div>
-            <div class="route-price" style="display: none;">
-                Price: $<span class="price"></span>
-            </div>
-        </div>
-    </div>
+    <?php echo '<div class="location_container">';
+        echo '<div class="location_row-container">';
+            echo '<div class="location_row">';
+                echo '<div class="location_column">';
+                    echo '<label for="pickup">Pickup</label>';
+                    echo '<select class="city-select pickup" name="pickup">';
+                        echo '<option value="">Select Pickup City</option>';
+                        foreach ($locations as $location){
+                            echo '<option value="' . $location['stationCode'] . '">' . $location['cityaddress'] . '</option>';
+                        }
+                    echo '</select>';
+                echo '</div>';
+                echo '<div class="location_column">';
+                    echo '<label for="dropup">Dropup</label>';
+                    echo '<select class="city-select dropup" name="dropup">';
+                        echo '<option value="" selected disabled>Select Dropup City</option>';
+                        foreach ($locations as $location){
+                            echo '<option value="' . $location['stationCode'] . '">' . $location['cityaddress'] . '</option>';
+                        }
+                    echo '</select>';
+                echo '</div>';
+            echo '</div>';
+            echo '<div class="route-display" style="display: none;">';
+                echo 'Route: <span class="route"></span>';
+            echo '</div>';
+            echo '<div class="route-price" style="display: none;">';
+                echo 'Price: <span class="price"></span>';
+            echo '</div>';
+        echo '</div>';
+    echo '</div>';
+    ?>
 
     <script>
-        // Define route prices
-        const routePrices = {
-            "Sydney-Melbourne": 100,
-            "Melbourne-Brisbane": 120,
-            "Brisbane-Perth": 150,
-            "Perth-Adelaide": 130,
-            "Adelaide-Sydney": 110,
-            // Add more routes and prices as needed
-        };
+        document.addEventListener('DOMContentLoaded', function() {
+            const pickupSelect = document.querySelector('.pickup');
+            const dropupSelect = document.querySelector('.dropup');
+            let carCategory = "CDAR";
+            let infoObject = {
+                pickUpDateEuro: <?php echo json_encode($requiredeuroBooking['pickDate']); ?>,
+                pickUpTimeEuro: <?php echo json_encode(formatDateAndTime($requiredeuroBooking['pickTime'])[0]); ?>,
+                dropOffDateEuro: <?php echo json_encode($requiredeuroBooking['dropDate']); ?>,
+                dropOffTimeEuro: <?php echo json_encode(formatDateAndTime($requiredeuroBooking['dropTime'])[0]); ?>
+            };
+            console.log(infoObject);
 
-        // Function to update the route and price display
-        function updateRouteDisplay(rowContainer) {
-            const pickup = rowContainer.querySelector(".pickup").value;
-            const dropup = rowContainer.querySelector(".dropup").value;
-            const routeDisplay = rowContainer.querySelector(".route-display");
-            const routePrice = rowContainer.querySelector(".route-price");
-            const routeText = rowContainer.querySelector(".route");
-            const priceText = rowContainer.querySelector(".price");
+            function logRouteValues() {
+                const selectedPickup = pickupSelect.options[pickupSelect.selectedIndex].value;
+                const selectedDropup = dropupSelect.options[dropupSelect.selectedIndex].value;
 
-            if (pickup && dropup) {
-                const routeKey = `${pickup}-${dropup}`;
-                const price = routePrices[routeKey] || "Not Available";
-
-                routeText.textContent = `${pickup} → ${dropup}`;
-                priceText.textContent = price;
-
-                routeDisplay.style.display = "block";
-                routePrice.style.display = "block";
-            } else {
-                routeDisplay.style.display = "none";
-                routePrice.style.display = "none";
+                if (selectedPickup && selectedDropup) {
+                    console.log('Pickup:', selectedPickup, 'Dropup:', selectedDropup);
+                    callGetQuotemobile(selectedPickup, selectedDropup, infoObject, carCategory);
+                    sendPickupDropData(selectedPickup, selectedDropup);
+                }
             }
+
+            pickupSelect.addEventListener('change', logRouteValues);
+            dropupSelect.addEventListener('change', logRouteValues);
+
+        });
+
+        function callGetQuotemobile(pick, drop, infoObject, carCategory) {
+            const data = {
+                carCategory: carCategory,
+                pickup: pick,
+                dropoff: drop,
+                pickUpTime: infoObject.pickUpTimeEuro,
+                dropOffTime: infoObject.dropOffTimeEuro,
+                pickUpDate: infoObject.pickUpDateEuro,
+                dropOffDate: infoObject.dropOffDateEuro
+            };
+
+            console.log("getQuote Data:", data);
+
+            fetch('getQuote.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Quote Response:", data);
+
+                    const priceContainer = document.querySelector('.route-price');
+                    const priceElement = document.querySelector('.price');
+
+
+                    if (data.quote) {
+                        const rate = data.quote.rate;
+                        const currency = data.quote.currency;
+
+                        if (rate > 0) {
+                            // Show the price and route
+                            priceContainer.style.display = 'block';
+                            priceElement.innerHTML = `$ ${currency} ${rate}`;
+                        } else {
+                            // Handle cases where rate is 0 or unavailable
+                            priceContainer.style.display = 'block';
+                            priceElement.innerHTML = "No price available.";
+                        }
+
+
+                    } else {
+                        // Handle missing quote data
+                        priceContainer.style.display = 'block';
+                        priceElement.innerHTML = "Quote not available.";
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    const priceContainer = document.querySelector('.route-price');
+                    const priceElement = document.querySelector('.price');
+
+                    priceContainer.style.display = 'block';
+                    priceElement.innerHTML = "Error retrieving quote.";
+                });
         }
 
-        // Add event listeners for pickup and dropup selection
-        document.addEventListener("change", (event) => {
-            if (event.target.classList.contains("pickup") || event.target.classList.contains("dropup")) {
-                const rowContainer = event.target.closest(".row-container");
-                updateRouteDisplay(rowContainer);
+        function sendPickupDropData(pickup, dropup) {
+            if (pickup && dropup) {
+                const data = {
+                    pickup: pickup,
+                    dropup: dropup
+                };
+                const routeDisplay = document.querySelector('.route-display');
+                const routeElement = document.querySelector('.route');
+
+                console.log("Sending data:", data);
+
+                fetch('processRoute.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(responseData => {
+                        console.log("Response from server:", responseData);
+
+                        if (responseData.success) {
+                            // Update the route display
+                            routeDisplay.style.display = 'block';
+                            routeElement.innerHTML = `${responseData.pickRoute} to ${responseData.dropRoute}`;
+                        } else {
+                            alert(`Error: ${responseData.message}`);
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error occurred:", error);
+                        alert("An error occurred while sending data.");
+                    });
+            } else {
+                alert("Please select both Pickup and Dropup cities.");
             }
-        });
+        }
     </script>
 </body>
 

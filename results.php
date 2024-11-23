@@ -355,6 +355,77 @@ if (!isset($_SESSION['jwtToken'])) {
             color: white;
             padding: 1rem;
         }
+
+        .location_container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .location_row-container {
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+        .location_row {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .location_column {
+            flex: 1;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .city-select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .add-button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            align-self: flex-start;
+        }
+
+        .add-button:hover {
+            background-color: #0056b3;
+        }
+
+        .route-display {
+            margin-top: 10px;
+            font-size: 17px;
+            color: #333;
+        }
+
+        .route-price {
+            margin-top: 12px;
+            font-size: 18px;
+            color: #007bff;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 769px) {
+            .location_row {
+                flex-direction: column;
+            }
+        }
     </style>
     <?php include 'header.php'; ?>
     <div class="modal fade bd-example-modal-lg" tabindex="-1" id="popUp" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
@@ -576,53 +647,27 @@ if (!isset($_SESSION['jwtToken'])) {
         </div>
         <!-- price table mobile-->
         <div id="price_table_mobile" class="container d-md-none">
-            <table class="table table-bordered my-4">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th class="d-flex justify-content-center">
-                            <img style="width: 9rem;" src="./images/EuroCar.svg" alt="">
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($categoriesEuro as $category => $codes): ?>
-                        <tr>
-                            <!-- Category Column -->
-                            <td scope="col" class="text-center align-middle">
-                                <div style="display: flex; flex-direction: column; align-items: center;">
-                                    <img src="./images/<?php echo strtolower($category); ?>.jpg" alt="" style="max-width: 100px; height: auto;">
-                                    <p style="text-align: center; width: 100%; word-wrap: break-word; margin-top: 5px;">
-                                        <?php echo ucfirst($category); ?>
-                                    </p>
-                                </div>
-                            </td>
-
-                            <!-- Company Column -->
-                            <td class="text-center mobile" data-size="<?php echo implode(',', $codes); ?>">
-                                <?php
-                                // Loop through vehicle categories and match with the given size codes
+            <div class="table-responsive-x">
+                <table class="table table-bordered my-4">
+                    <tbody>
+                        <tr id="Euro">
+                            <th class="d-flex justify-content-center" id="Euro_image">
+                                <img src="./images/EuroCar.svg" alt="" style="width: 5rem;">
+                            </th>
+                            <?php
+                            // Loop through categories and display rates
+                            foreach ($categoriesEuro as $category => $codes) {
                                 $found = false; // Track if we find a vehicle in the category
-
-                                foreach ($xmlresEuro->serviceResponse->carCategoryList->carCategory as $vehicle) {
-                                    if (in_array((string)$vehicle['carCategoryCode'], $codes)) {
-                                        // Display the rate for the first matching vehicle
-                                        $rate = (float)$vehicle['carCategoryPowerHP']; // Replace with actual rate data if needed
-                                        echo 'AUD ' . number_format($rate, 2);
-                                        $found = true;
-                                        break; // Only display the first matching vehicle
-                                    }
-                                }
-
-                                if (!$found) {
-                                    echo 'Not Available';
-                                }
-                                ?>
-                            </td>
+                                $dataSize = implode(',', $codes); // Dynamically generate the sizes for data-size
+                                echo '<td class="text-center Euro mobile" data-size="' . $dataSize . '">';
+                                echo '<span id="Euro_Price">Not Available</span>';
+                                echo '</td>';
+                            }
+                            ?>
                         </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
         </div>
         <!-- result line desktop-->
         <div class="d-none d-md-block">
@@ -833,28 +878,70 @@ if (!isset($_SESSION['jwtToken'])) {
                     if (isset($xmlresEuro->serviceResponse->carCategoryList->carCategory)) {
                         // Loop through each vehicle in the carCategoryList
                         foreach ($xmlresEuro->serviceResponse->carCategoryList->carCategory as $vehicle) {
-                            // Extract details as strings or integers as necessary
-                            $name = (string) $vehicle['carCategorySample']; // Vehicle sample name
-                            $passengers = (string) $vehicle['carCategorySeats']; // Number of seats
-                            $luggage = (string) $vehicle['carCategoryBaggageQuantity']; // Baggage capacity
-                            $transmission = (string) $vehicle['carCategoryAutomatic'] === 'Y' ? 'Automatic' : 'Manual'; // Transmission type
-                            $rate = (float) $vehicle['carCategoryPowerHP']; // Use Power HP as a placeholder for rate
-                            $final = calculatePercentage($markUp, $rate); // Calculate markup
-                            $currency = "USD"; // Placeholder for currency
-                            $vendor = "Hertz"; // Example vendor
-                            $image = "https://images.hertz.com/vehicles/220x128/default.jpg"; // Placeholder image
+                            // Check if $vehicle and its properties are set before accessing them
+                            if (isset($vehicle) && isset($vehicle['carCategorySample'])) {
+                                $name = (string) $vehicle['carCategorySample'];
+                            } else {
+                                $name = "Not Available"; // Default value if not set
+                            }
+
+                            if (isset($vehicle['carCategorySeats'])) {
+                                $passengers = (string) $vehicle['carCategorySeats'];
+                            } else {
+                                $passengers = "Not Available";
+                            }
+
+                            if (isset($vehicle['carCategoryBaggageQuantity'])) {
+                                $luggage = (string) $vehicle['carCategoryBaggageQuantity'];
+                            } else {
+                                $luggage = "Not Available";
+                            }
+
+                            if (isset($vehicle['carCategoryAutomatic'])) {
+                                $transmission = (string) $vehicle['carCategoryAutomatic'] === 'Y' ? 'Automatic' : 'Manual';
+                            } else {
+                                $transmission = "Not Specified";
+                            }
+
+                            // Ensure $xmldata and $xml are valid before accessing them
+                            $xmldata = getQuote($vehicle['carCategoryCode'], $infoArray);
+                            // var_dump($vehicle['carCategoryCode']);
+                            if ($xmldata && $xml = simplexml_load_string($xmldata)) {
+                                $rate = isset($xml->serviceResponse->reservation->quote['basePrice']) ? (float)$xml->serviceResponse->reservation->quote['basePrice'] : 0;
+                                $carVisualLink = isset($xml->serviceResponse->reservation->links->link['value']) ? (string)$xml->serviceResponse->reservation->links->link['value'] : './images/default-car.png';
+                                $currency = isset($xml->serviceResponse->reservation->quote['currency']) ? (string)$xml->serviceResponse->reservation->quote['currency'] : 'USD';
+                            } else {
+                                $rate = 0; // Default value if XML data isn't available
+                                $carVisualLink = './images/default-car.png'; // Fallback image
+                                $currency = 'USD'; // Default currency
+                            }
+
+                            // Calculate markup safely
+                            $final = is_numeric($rate) ? calculatePercentage($markUp, $rate) : "Not Available";
+                            if ($xml->serviceResponse->reservation->quote['currency'] != null) {
+                                $currency = (string)$xml->serviceResponse->reservation->quote['currency'];
+                            } else {
+                                $currency = "AUD";
+                            }
+                            $vendor = "Euro"; // Example vendor
                             $vendorLogo = "./images/EuroCar.svg"; // Placeholder for vendor logo
                             $reference = (string) $vehicle['carCategoryCode']; // Car category code as reference
 
                             // Use the carCategoryCode (e.g., CDAR, CFAR, etc.) as the data-size value
                             $dataSize = (string) $vehicle['carCategoryCode'];
 
+                            if (is_numeric($final)) {
+                                $finalTotal = number_format((float)$final, 2);
+                            } else {
+                                $finalTotal = (float)$final;
+                            }
+
                             // Output the HTML for each vehicle, hide them initially
                             echo '
                             <div class="res_card vehicle-item-mobile" data-size="' . $dataSize . '">
                                 <div>
                                     <div class="d-grid">
-                                        <img style="width:20rem;" src="' . $image . '" alt="' . $name . '">
+                                        <img style="width:20rem;" src="' . $carVisualLink . '" alt="' . $name . '">
                                         <img src="' . $vendorLogo . '" alt="' . $vendor . '">
                                     </div>
                                     <div>
@@ -899,12 +986,42 @@ if (!isset($_SESSION['jwtToken'])) {
                                         </div>
                                         <div class="res_pay">
                                             <div class="d-flex">
-                                                <a href="book.php?reference=' . $reference . '&vdNo=Euro"; class="btn btn-primary">BOOK NOW</a>
+                                                <a style="height:2.5rem;" class="btn btn-primary showlocationMobile" id="showlocationMobile_' . $dataSize . '">Show Locations</a>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>';
+                            echo '<div class="d-none location_container_' . $dataSize . '">';
+                            echo '<div class="location_row-container">';
+                            echo '<div class="location_row">';
+                            echo '<div class="location_column">';
+                            echo '<label for="pickup">Pickup</label>';
+                            echo '<select class="city-select pickup" name="pickup">';
+                            echo '<option value="">Select Pickup City</option>';
+                            foreach ($locations as $location_mobile_pick) {
+                                echo '<option value="' . $location_mobile_pick['stationCode'] . '">' . $location_mobile_pick['cityaddress'] . '</option>';
+                            }
+                            echo '</select>';
+                            echo '</div>';
+                            echo '<div class="location_column">';
+                            echo '<label for="dropup">Dropup</label>';
+                            echo '<select class="city-select dropup" name="dropup">';
+                            echo '<option value="" selected disabled>Select Dropup City</option>';
+                            foreach ($locations as $location_mobile_drop) {
+                                echo '<option value="' . $location_mobile_drop['stationCode'] . '">' . $location_mobile_drop['cityaddress'] . '</option>';
+                            }
+                            echo '</select>';
+                            echo '</div>';
+                            echo '</div>';
+                            echo '<div class="route-display" style="display: none;">';
+                            echo 'Route: <span class="route"></span>';
+                            echo '</div>';
+                            echo '<div class="route-price" style="display: none;">';
+                            echo 'Price: <span class="price"></span>';
+                            echo '</div>';
+                            echo '</div>';
+                            echo '</div>';
                         }
                     } else {
                         echo '<p>No vehicles available</p>';
@@ -922,6 +1039,11 @@ if (!isset($_SESSION['jwtToken'])) {
         document.querySelector('.loader_div').classList.replace("d-grid", "d-none");
         document.querySelector('.results_div').classList.remove('d-none');
 
+        // for mobile devices only 
+
+        const pickupSelect = document.querySelector('.pickup');
+        const dropupSelect = document.querySelector('.dropup');
+
         document.querySelectorAll('.showLocation').forEach(function(e) {
             e.addEventListener('click', function(event) {
                 console.log(event.target.id);
@@ -932,6 +1054,25 @@ if (!isset($_SESSION['jwtToken'])) {
                 document.querySelectorAll('#pickupLocationName_div .selected, #dropoffLocationName_div .selected').forEach(function(selectedElement) {
                     selectedElement.classList.remove('selected');
                 });
+
+                // Show or hide the respective car category section
+                document.querySelectorAll('.show').forEach(function(el) {
+                    if (el.id === `location_container_${carCategory}`) {
+                        el.classList.remove('d-none');
+                    } else {
+                        el.classList.add('d-none');
+                    }
+                });
+            });
+        });
+
+        // for  mobile 
+
+        document.querySelectorAll('.showlocationMobile').forEach(function(e) {
+            e.addEventListener('click', function(event) {
+                console.log(event.target.id);
+                var carCategory = event.target.id.replace("showlocationMobile", "");
+                console.log(carCategory);
 
                 // Show or hide the respective car category section
                 document.querySelectorAll('.show').forEach(function(el) {
@@ -957,6 +1098,20 @@ if (!isset($_SESSION['jwtToken'])) {
         };
 
         console.log(infoObject);
+
+        function logRouteValues() {
+            const selectedPickup = pickupSelect.options[pickupSelect.selectedIndex].value;
+            const selectedDropup = dropupSelect.options[dropupSelect.selectedIndex].value;
+
+            if (selectedPickup && selectedDropup) {
+                console.log('Pickup:', selectedPickup, 'Dropup:', selectedDropup);
+                callGetQuotemobile(selectedPickup, selectedDropup, infoObject, carCategory);
+                sendPickupDropData(selectedPickup, selectedDropup);
+            }
+        }
+
+        pickupSelect.addEventListener('change', logRouteValues);
+        dropupSelect.addEventListener('change', logRouteValues);
 
         const categoriesEuro = {
             Economy: ['CDAR', 'XZAR'],
@@ -1039,6 +1194,25 @@ if (!isset($_SESSION['jwtToken'])) {
             });
         });
 
+        // for mobile 
+
+        document.querySelectorAll('.showlocationMobile').forEach(function(e) {
+            e.addEventListener('click', function(event) {
+                carCategory = event.target.id.replace("showlocationMobile_", "");
+                console.log("Selected car category:", carCategory);
+
+                document.querySelectorAll('.show').forEach(function(el) {
+                    if (el.id === `location_container_${carCategory}`) {
+                        el.classList.remove('d-none');
+                    } else {
+                        el.classList.add('d-none');
+                    }
+                });
+
+                addLocationEventListenersMobile(carCategory); // Add event listeners when a car category is selected
+            });
+        });
+
         function handleSelection(event, type, carCategory) {
             const targetDiv = type === 'pickup' ? `#pickupLocationName_div_${carCategory}` : `#dropoffLocationName_div_${carCategory}`;
             const selectedData = {
@@ -1113,6 +1287,22 @@ if (!isset($_SESSION['jwtToken'])) {
             });
         }
 
+        // for mobiles 
+
+        function addLocationEventListenersMobile(carCategory) {
+            document.querySelectorAll(`#pickupLocationName_div_${carCategory} .locationName`).forEach((element) => {
+                element.addEventListener('click', (event) => {
+                    handleSelection(event, 'pickup', carCategory);
+                });
+            });
+
+            document.querySelectorAll(`#dropoffLocationName_div_${carCategory} .locationName`).forEach((element) => {
+                element.addEventListener('click', (event) => {
+                    handleSelection(event, 'dropoff', carCategory);
+                });
+            });
+        }
+
         function callGetQuote() {
             console.log("Calling getQuote with:");
             console.log("Car Category:", carCategory);
@@ -1174,11 +1364,114 @@ if (!isset($_SESSION['jwtToken'])) {
             <div>
                 <p>Rental Rate: Not Available</p>
             </div>
-        `;
+            `;
                     }
                 })
                 .catch(error => console.log('Error:', error));
 
+        }
+        // for mobile devices to get quote
+        function callGetQuotemobile(pick, drop, infoObject, carCategory) {
+            const data = {
+                carCategory: carCategory,
+                pickup: pick,
+                dropoff: drop,
+                pickUpTime: infoObject.pickUpTimeEuro,
+                dropOffTime: infoObject.dropOffTimeEuro,
+                pickUpDate: infoObject.pickUpDateEuro,
+                dropOffDate: infoObject.dropOffDateEuro
+            };
+
+            console.log("getQuote Data:", data);
+
+            fetch('getQuote.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Quote Response:", data);
+
+                    const priceContainer = document.querySelector('.route-price');
+                    const priceElement = document.querySelector('.price');
+
+
+                    if (data.quote) {
+                        const rate = data.quote.rate;
+                        const currency = data.quote.currency;
+
+                        if (rate > 0) {
+                            // Show the price and route
+                            priceContainer.style.display = 'block';
+                            priceElement.innerHTML = `$ ${currency} ${rate}`;
+                        } else {
+                            // Handle cases where rate is 0 or unavailable
+                            priceContainer.style.display = 'block';
+                            priceElement.innerHTML = "No price available.";
+                        }
+
+
+                    } else {
+                        // Handle missing quote data
+                        priceContainer.style.display = 'block';
+                        priceElement.innerHTML = "Quote not available.";
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    const priceContainer = document.querySelector('.route-price');
+                    const priceElement = document.querySelector('.price');
+
+                    priceContainer.style.display = 'block';
+                    priceElement.innerHTML = "Error retrieving quote.";
+                });
+        }
+
+        function sendPickupDropData(pickup, dropup) {
+            if (pickup && dropup) {
+                const data = {
+                    pickup: pickup,
+                    dropup: dropup
+                };
+                const routeDisplay = document.querySelector('.route-display');
+                const routeElement = document.querySelector('.route');
+
+                console.log("Sending data:", data);
+
+                fetch('processRoute.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(responseData => {
+                        console.log("Response from server:", responseData);
+
+                        if (responseData.success) {
+                            // Update the route display
+                            routeDisplay.style.display = 'block';
+                            routeElement.innerHTML = `${responseData.pickRoute} to ${responseData.dropRoute}`;
+                        } else {
+                            alert(`Error: ${responseData.message}`);
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error occurred:", error);
+                        alert("An error occurred while sending data.");
+                    });
+            } else {
+                alert("Please select both Pickup and Dropup cities.");
+            }
         }
         // Hide all res_card elements initially
         document.querySelectorAll('.res_card').forEach(function(card) {
